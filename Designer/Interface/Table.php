@@ -313,12 +313,16 @@ class Gtk_MDB_Designer_Interface_Table extends Gtk_MDB_Designer_Table {
         );
     }
     /**
-    * destroy an widget.
+    * destroy all widgets.
     *
     * @access   public
     */
  
     function destroy() {
+        foreach(array_keys($this->fields) as $i) {
+            $this->fields[$i]->destroy();
+        }
+            
         $this->database->layout->remove($this->frame);
         $this->frame->destroy();
         

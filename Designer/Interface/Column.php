@@ -343,6 +343,23 @@ class Gtk_MDB_Designer_Interface_Column extends Gtk_MDB_Designer_Column {
         
         
     }
+    
+    
+    /**
+    * destroy all widgets.
+    *
+    * @access   public
+    */
+ 
+    function destroy() {
+        foreach(array_keys($this->widgets) as $i) {
+            $this->widgets[$i]->destroy();
+        }
+           
+    }
+    
+    
+    
     /**
     * callback delete a row
     *

@@ -61,11 +61,21 @@
                 <file>Column.php</file>
                 <file>Database.php</file>
                 <file>Designer.glade</file>
+                
                 <dir name="Interface" role="php">
                   <file>Table.php</file>
                   <file>Column.php</file>
                   <file>Database.php</file>    
                   <file>Link.php</file>
+                </dir>
+                <file>MessageBox.php</file>
+                <dir name="MessageBox" role="php">            
+              
+                  <file>cross.xpm</file>
+                  <file>question.xpm</file>
+                  <file>asterisk.xpm</file>    
+                  <file>exclamation.xpm</file>
+                  <file>messagebox.glade</file>
                 </dir>
             </dir>
         </dir>

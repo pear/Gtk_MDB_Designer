@@ -21,6 +21,10 @@
 //  The Gtk part of the database layer
 //
 
+$GLOBALS['_Gtk_MDB_Designer_Interface_Database']['signals'] = array();
+ 
+
+
 require_once 'Gtk/MDB/Designer/Database.php';
 require_once 'Gtk/MDB/Designer/Interface/Table.php';
 require_once 'Gtk/MDB/Designer/Interface/Link.php';
@@ -48,6 +52,9 @@ class Gtk_MDB_Designer_Interface_Database extends Gtk_MDB_Designer_Database {
     */
     
     function buildWidgets(&$designer) {
+        //echo "BUILD WIDGETS";
+        global $_Gtk_MDB_Designer_Interface_Database;
+        
         $this->loading = true;
         $this->designer = &$designer;
         $this->layout   = &$designer->layout;
@@ -61,22 +68,40 @@ class Gtk_MDB_Designer_Interface_Database extends Gtk_MDB_Designer_Database {
         $menu->set_sensitive(false);
         
         $database = $this->glade->get_widget('databaseName');
-        $database->connect('changed',array(&$this,'callbackNameChanged'));
-        
         $database->set_text($this->name);
-        $database->connect('leave-notify-event', array(&$this,'save'));
+        
+        // prevent to many connect signals occuring..
+        
+        foreach ($_Gtk_MDB_Designer_Interface_Database['signals'] as $i) {
+            $database->disconnect($i);
+        }
+        $_Gtk_MDB_Designer_Interface_Database['signals'] = array();
+        $_Gtk_MDB_Designer_Interface_Database['signals'][] = $database->connect('changed',array(&$this,'callbackNameChanged'));
+        $_Gtk_MDB_Designer_Interface_Database['signals'][] = $database->connect('leave-notify-event', array(&$this,'save'));
+        
+        
+        
         //?? right place?
         $this->designer->setTitle();
         
+
         foreach (array_keys($this->tables) as $name) {
            $this->tables[$name]->buildWidgets($this,$this->maxX,20);
         }
         
-        
+        if ($this->designer->pixmap) {
+            $ww = $this->layout->window;
+            gdk::draw_rectangle($this->designer->pixmap, 
+                $this->designer->drawingArea->style->white_gc,
+                true, 0, 0,
+                $ww->width ,$ww->height);
+        }
         
         $menu->set_sensitive(true);
         // create each row.
+        
         $this->designer->loadDrawingArea();
+        
         $this->loading = false;
         
         while (gtk::events_pending()) gtk::main_iteration();
@@ -92,7 +117,7 @@ class Gtk_MDB_Designer_Interface_Database extends Gtk_MDB_Designer_Database {
             $this->links[$i]->addLink();
         }
       
-         $this->link= array();
+        $this->link= array();
         
     }
     
@@ -128,11 +153,12 @@ class Gtk_MDB_Designer_Interface_Database extends Gtk_MDB_Designer_Database {
         
         
         if ($this->designer->pixmap) {
-            $this->designer->pixmap = new GdkPixmap(
-                    $this->designer->drawingArea->window,
-                    $maxX ,$maxY,
-                    -1);
-                  
+            /*if (($maxX > 10000) || ($maxY > 10000)) {
+                $this->designer->pixmap = new GdkPixmap(
+                        $this->designer->drawingArea->window,
+                        $maxX ,$maxY,
+                        -1);
+            }   */       
             gdk::draw_rectangle($this->designer->pixmap, 
                 $this->designer->drawingArea->style->white_gc,
                 true, 0, 0,

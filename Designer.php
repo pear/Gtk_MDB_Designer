@@ -209,6 +209,7 @@ class Gtk_MDB_Designer {
     
     
     function loadDrawingArea() {
+ 
         if ($this->drawingArea) {
             return;
         }
@@ -231,17 +232,21 @@ class Gtk_MDB_Designer {
     
     // the callback to create the pixmap & start building
     function drawingAreaCallbackConfigure($widget, $event) { 
+ 
         //echo "da configure\n";
         if (@$this->pixmap) {
             return true;
         }
         $this->pixmap = new GdkPixmap($this->drawingArea->window,
-                $this->database->maxX ,$this->database->maxY,
+                //$this->database->maxX ,$this->database->maxY,
+                10000,10000
                 -1);
 
         gdk::draw_rectangle($this->pixmap, 
             $this->drawingArea->style->white_gc,
             true, 0, 0,
+            
+            //10000,10000);
             $this->database->maxX ,$this->database->maxY);
         // flash cursor GC
         $window = $this->drawingArea->window;
@@ -262,7 +267,7 @@ class Gtk_MDB_Designer {
     function drawingAreaCallbackExpose($widget,$event) { 
         //echo "da expose\n";
         
-        
+       
         
         if (!$this->pixmap) {
             return;
@@ -441,6 +446,22 @@ class Gtk_MDB_Designer {
     }
     function showNewDialog() 
     {
+        require_once 'Gtk/MDB/Designer/MessageBox.php';
+        $dialog = new Gtk_MDB_Designer_MessageBox(
+            array(
+                'window' => 'Create a New Database',
+                'message' => "Are you sure you want create a new database?\n\nIf you have not saved yet  you will loose all the changes",
+                'ok' => 'Yes - Delete the current database',
+                'cancel' => 'No - I need to save it',
+                'icon'  => 'question.xpm',
+            )
+        );
+        if ($dialog->display() == 'ok') {
+            $this->newFile();
+        }
+        return;
+        
+        
         $dialog = $this->glade->get_widget('dialog_new');
         $dialog->show();
     }
