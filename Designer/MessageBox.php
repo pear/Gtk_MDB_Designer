@@ -150,14 +150,19 @@ class Gtk_MDB_Designer_MessageBox {
         }
         $w = $this->glade->get_widget('window');
         $w->show();
-        list($pixmap, $mask)= Gdk::pixmap_create_from_xpm( $w->window, NULL, $this->options['resourceDir'].'/'.$this->options['icon'] );
-        $pxmIcon        = &new GtkPixmap($pixmap, $mask);
-        //print_r($pxmIcon);
-       // $pxmIcon        ->set_padding( 10, 5);
-        $pxmIcon        ->show();
-        $w = $this->glade->get_widget('pixmapHolder');
-        $w->add($pxmIcon);
         
+        list($pixmap, $mask)= Gdk::pixmap_create_from_xpm( $w->window, NULL, $this->options['resourceDir'].'/'.$this->options['icon'] );
+        if ($pixmap) {
+            $pxmIcon = &new GtkPixmap($pixmap, $mask);
+        
+           
+            $pxmIcon->show();
+            $w = $this->glade->get_widget('pixmapHolder');
+            $w->add($pxmIcon);
+        } else {
+            // this is debugging - and only really happens if the setup has gone wrong.
+            echo "Warning: unable to locate icon: ". $this->options['resourceDir'].'/'.$this->options['icon'] . "\n";
+        }
         $w = $this->glade->get_widget('window');
        
 

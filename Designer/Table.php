@@ -124,6 +124,19 @@ class Gtk_MDB_Designer_Table {
             }
             
         }
+        $pkeys = array();
+        if (in_array($db->phptype, array('mysql','fbsql'))) {
+            
+
+            foreach($this->fields as $field) {
+                if ($field->sequence) {
+                    $pkeys[] = $field->name;    
+                }
+            }
+            if ($pkeys) {
+                $ret .= ",\n   PRIMARY KEY(" . implode(',', $pkeys) . ')';
+            }
+        }    
         $ret .= "\n)";
         if (strlen($this->inherits)) {
             $ret.= "\nINHERITS ({$this->inherits})";
