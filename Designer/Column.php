@@ -102,7 +102,7 @@ class Gtk_MDB_Designer_Column {
                     break;
                 case 'pgsql':
                 case 'oci8': // no idea if this works..
-                    $r .= " DEFAULT nextval('{$this->table->name}_sequence') ";
+                    $r .= " DEFAULT nextval('{$this->table->name}_seq') ";
             }
         }
         return $r;
