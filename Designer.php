@@ -68,6 +68,7 @@ class Gtk_MDB_Designer {
         } else {
             $this->newFile();
         }
+        
         gtk::main();
     }
     
@@ -199,8 +200,14 @@ class Gtk_MDB_Designer {
         $this->database->file = $file;
         $this->database->buildWidgets($this);
         
+     
+    }   
     
-    }
+    
+    
+    
+    
+    
     
     /**
     * create a new file.

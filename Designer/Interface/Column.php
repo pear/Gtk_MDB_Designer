@@ -65,6 +65,10 @@ class Gtk_MDB_Designer_Interface_Column extends Gtk_MDB_Designer_Column {
                     $this->widgets[$string]->set_text((string) $this->$string);
                     $this->widgets[$string]->connect('changed',array(&$this,'callbackSetValue'),$string);
                     $this->widgets[$string]->connect('leave-notify-event', array(&$this->table->database,'save'));
+                    if ($string == 'name') {
+                        $this->widgets[$string]->connect('button-press-event',array(&$this,'callbackNamePressed'));
+                        $this->widgets[$string]->connect('button-release-event',array(&$this,'callbackNameReleased'));
+                    }
                     break;
                     
                 case 'type':
@@ -275,7 +279,57 @@ class Gtk_MDB_Designer_Interface_Column extends Gtk_MDB_Designer_Column {
         $this->table->frame->show();
     }
     
-   /**
+    var $nameDrag = false;
+    var $lastEnd = false;
+
+    function callbackNamePressed() {
+        $w = $this->table->database->layout->window;
+        $w->set_cursor($this->table->database->designer->pointers[GDK_HAND2]);
+        $this->startPos         = $w->pointer;
+        $this->nameDrag = true;
+        
+        $cmap = $this->table->database->layout->get_colormap();
+
+        $this->_cursorGC = $w->new_gc();
+        $this->_cursorGC->background =  $cmap->alloc("#000000");
+        $this->_cursorGC->function   =  GDK_INVERT;    
+        $this->lastEnd = false;
+        gtk::timeout_add(5,array(&$this,'callbackDragMove'));
+       
+    }
+    function callbackDragMove() {
+        $da =  &$this->table->database->drawingArea;
+        $pix = &$this->table->database->pixmap;
+        $w = $da->window;
+        
+        if ($this->lastEnd) {
+            gdk::draw_line($pix,$this->_cursorGC,$this->startPos[0],$this->startPos[1],$this->lastEnd[0],$this->lastEnd[1]);
+        }
+        
+        //print_r($this->startPos);
+        //print_r($this->lastEnd);
+        $this->lastEnd = $w->pointer;
+        
+        gdk::draw_line($pix,$this->_cursorGC,$this->startPos[0],$this->startPos[1],$this->lastEnd[0],$this->lastEnd[1]);
+        //gdk::draw_line($pix,$this->_cursorGC,0,0,500,500);
+          
+        //$da->draw(new GdkRectangle(0,0,500,500));
+        
+        $da->draw(new GdkRectangle(
+                $this->startPos[0],$this->startPos[1],$this->lastEnd[0],$this->lastEnd[1])
+        );
+        
+        return $this->nameDrag;
+       
+    }
+    function callbackNameReleased() {
+        $w = $this->table->database->layout->window;
+        $w->set_cursor($this->table->database->designer->pointers[GDK_ARROW]);
+        $this->nameDrag = false;
+       
+    }
+
+    /**
     * shrink view.
     *
     * @access   public
@@ -288,7 +342,7 @@ class Gtk_MDB_Designer_Interface_Column extends Gtk_MDB_Designer_Column {
             }
             $this->widgets[$w]->hide();
         }
-        $this->widgets['name']->set_sensitive(false);
+        $this->widgets['name']->set_editable(false);
     
     }
      /**
@@ -305,9 +359,9 @@ class Gtk_MDB_Designer_Interface_Column extends Gtk_MDB_Designer_Column {
             $this->widgets[$w]->show();
         }
         $this->setVisable();
-        $this->widgets['name']->set_sensitive(true);
+        $this->widgets['name']->set_editable(true);
     }
-     /**
+    /**
     * make sure the menau
     *
     * @access   public
