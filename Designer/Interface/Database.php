@@ -92,24 +92,37 @@ class Gtk_MDB_Designer_Interface_Database extends Gtk_MDB_Designer_Database {
             //$this->pixmap->destroy();
             
         //}
+        $ww = $this->layout->window;
+        
+        //print_r(array($ww->width,$ww->height));
+        //print_r(array($this->maxX,$this->maxY));
+        
+        $maxX = ($this->maxX > $ww->width) ? $this->maxX : $ww->width;
+        $maxY = ($this->maxY > $ww->height) ? $this->maxY : $ww->height;
+        
+        
         if ($this->designer->pixmap) {
             $this->designer->pixmap = new GdkPixmap(
                     $this->designer->drawingArea->window,
-                    $this->maxX ,$this->maxY,
+                    $maxX ,$maxY,
                     -1);
                     
             gdk::draw_rectangle($this->designer->pixmap, 
                 $this->designer->drawingArea->style->white_gc,
                 true, 0, 0,
-                $this->maxX ,$this->maxY);
+                $maxX ,$maxY);
+                
+            // at this point you have to hook in the call to redraw the connectors.
             
-            $this->designer->drawingArea->size($this->maxX,$this->maxY);
+            
+            
+            $this->designer->drawingArea->size($maxX,$maxY);
         }
         //$this->drawingArea->hide();
         //$this->drawingArea->show();
         
         
-        $this->layout->set_size($this->maxX,$this->maxY);
+        $this->layout->set_size($maxX,$maxY);
     }
     
     /**
