@@ -1,0 +1,759 @@
+<?xml version="1.0"?>
+<GTK-Interface>
+
+<project>
+  <name>dbdesign</name>
+  <program_name>dbdesign</program_name>
+  <directory></directory>
+  <source_directory>src</source_directory>
+  <pixmaps_directory>pixmaps</pixmaps_directory>
+  <language>Perl</language>
+  <gnome_support>False</gnome_support>
+  <gettext_support>False</gettext_support>
+</project>
+
+<widget>
+  <class>GtkMenu</class>
+  <name>menu</name>
+
+  <widget>
+    <class>GtkRadioMenuItem</class>
+    <name>type_integer</name>
+    <accelerator>
+      <modifiers>0</modifiers>
+      <key>GDK_i</key>
+      <signal>activate</signal>
+    </accelerator>
+    <signal>
+      <name>activate</name>
+      <handler>on_type_integer_activate</handler>
+      <last_modification_time>Wed, 19 Mar 2003 12:16:51 GMT</last_modification_time>
+    </signal>
+    <label>_integer</label>
+    <active>True</active>
+    <always_show_toggle>True</always_show_toggle>
+    <group>a</group>
+  </widget>
+
+  <widget>
+    <class>GtkMenuItem</class>
+    <name>separator1</name>
+    <right_justify>False</right_justify>
+  </widget>
+
+  <widget>
+    <class>GtkRadioMenuItem</class>
+    <name>type_decimal</name>
+    <accelerator>
+      <modifiers>0</modifiers>
+      <key>GDK_d</key>
+      <signal>activate</signal>
+    </accelerator>
+    <signal>
+      <name>activate</name>
+      <handler>on_type_decimal_activate</handler>
+      <last_modification_time>Wed, 19 Mar 2003 12:16:51 GMT</last_modification_time>
+    </signal>
+    <label>_decimal</label>
+    <active>False</active>
+    <always_show_toggle>True</always_show_toggle>
+    <group>a</group>
+  </widget>
+
+  <widget>
+    <class>GtkRadioMenuItem</class>
+    <name>type_float</name>
+    <accelerator>
+      <modifiers>0</modifiers>
+      <key>GDK_f</key>
+      <signal>activate</signal>
+    </accelerator>
+    <signal>
+      <name>activate</name>
+      <handler>on_type_float_activate</handler>
+      <last_modification_time>Wed, 19 Mar 2003 12:16:51 GMT</last_modification_time>
+    </signal>
+    <label>_float</label>
+    <active>False</active>
+    <always_show_toggle>True</always_show_toggle>
+    <group>a</group>
+  </widget>
+
+  <widget>
+    <class>GtkRadioMenuItem</class>
+    <name>type_double</name>
+    <accelerator>
+      <modifiers>0</modifiers>
+      <key>GDK_o</key>
+      <signal>activate</signal>
+    </accelerator>
+    <signal>
+      <name>activate</name>
+      <handler>on_type_double_activate</handler>
+      <last_modification_time>Wed, 19 Mar 2003 12:16:51 GMT</last_modification_time>
+    </signal>
+    <label>d_ouble</label>
+    <active>False</active>
+    <always_show_toggle>True</always_show_toggle>
+    <group>a</group>
+  </widget>
+
+  <widget>
+    <class>GtkMenuItem</class>
+    <name>separator2</name>
+    <right_justify>False</right_justify>
+  </widget>
+
+  <widget>
+    <class>GtkRadioMenuItem</class>
+    <name>type_text</name>
+    <accelerator>
+      <modifiers>0</modifiers>
+      <key>GDK_t</key>
+      <signal>activate</signal>
+    </accelerator>
+    <signal>
+      <name>activate</name>
+      <handler>on_type_text_activate</handler>
+      <last_modification_time>Wed, 19 Mar 2003 12:16:51 GMT</last_modification_time>
+    </signal>
+    <label>_text</label>
+    <active>False</active>
+    <always_show_toggle>True</always_show_toggle>
+    <group>a</group>
+  </widget>
+
+  <widget>
+    <class>GtkRadioMenuItem</class>
+    <name>type_cblob</name>
+    <accelerator>
+      <modifiers>0</modifiers>
+      <key>GDK_c</key>
+      <signal>activate</signal>
+    </accelerator>
+    <signal>
+      <name>activate</name>
+      <handler>on_type_cblob_activate</handler>
+      <last_modification_time>Wed, 19 Mar 2003 12:16:51 GMT</last_modification_time>
+    </signal>
+    <label>_cblob</label>
+    <active>False</active>
+    <always_show_toggle>True</always_show_toggle>
+    <group>a</group>
+  </widget>
+
+  <widget>
+    <class>GtkRadioMenuItem</class>
+    <name>type_blob</name>
+    <accelerator>
+      <modifiers>0</modifiers>
+      <key>GDK_l</key>
+      <signal>activate</signal>
+    </accelerator>
+    <signal>
+      <name>activate</name>
+      <handler>on_type_blob_activate</handler>
+      <last_modification_time>Wed, 19 Mar 2003 12:16:51 GMT</last_modification_time>
+    </signal>
+    <label>b_lob</label>
+    <active>False</active>
+    <always_show_toggle>True</always_show_toggle>
+    <group>a</group>
+  </widget>
+
+  <widget>
+    <class>GtkMenuItem</class>
+    <name>separator3</name>
+    <right_justify>False</right_justify>
+  </widget>
+
+  <widget>
+    <class>GtkRadioMenuItem</class>
+    <name>type_boolean</name>
+    <accelerator>
+      <modifiers>0</modifiers>
+      <key>GDK_b</key>
+      <signal>activate</signal>
+    </accelerator>
+    <signal>
+      <name>activate</name>
+      <handler>on_type_boolean_activate</handler>
+      <last_modification_time>Wed, 19 Mar 2003 12:16:51 GMT</last_modification_time>
+    </signal>
+    <label>_boolean</label>
+    <active>False</active>
+    <always_show_toggle>True</always_show_toggle>
+    <group>a</group>
+  </widget>
+
+  <widget>
+    <class>GtkMenuItem</class>
+    <name>separator4</name>
+    <right_justify>False</right_justify>
+  </widget>
+
+  <widget>
+    <class>GtkRadioMenuItem</class>
+    <name>type_date</name>
+    <accelerator>
+      <modifiers>0</modifiers>
+      <key>GDK_a</key>
+      <signal>activate</signal>
+    </accelerator>
+    <signal>
+      <name>activate</name>
+      <handler>on_type_date_activate</handler>
+      <last_modification_time>Wed, 19 Mar 2003 12:16:51 GMT</last_modification_time>
+    </signal>
+    <label>d_ate</label>
+    <active>False</active>
+    <always_show_toggle>True</always_show_toggle>
+    <group>a</group>
+  </widget>
+
+  <widget>
+    <class>GtkRadioMenuItem</class>
+    <name>type_timestamp</name>
+    <accelerator>
+      <modifiers>0</modifiers>
+      <key>GDK_s</key>
+      <signal>activate</signal>
+    </accelerator>
+    <signal>
+      <name>activate</name>
+      <handler>on_type_timestamp_activate</handler>
+      <last_modification_time>Wed, 19 Mar 2003 12:16:51 GMT</last_modification_time>
+    </signal>
+    <label>time_stamp</label>
+    <active>False</active>
+    <always_show_toggle>True</always_show_toggle>
+    <group>a</group>
+  </widget>
+
+  <widget>
+    <class>GtkRadioMenuItem</class>
+    <name>type_time</name>
+    <accelerator>
+      <modifiers>0</modifiers>
+      <key>GDK_m</key>
+      <signal>activate</signal>
+    </accelerator>
+    <signal>
+      <name>activate</name>
+      <handler>on_type_time_activate</handler>
+      <last_modification_time>Wed, 19 Mar 2003 12:16:51 GMT</last_modification_time>
+    </signal>
+    <label>ti_me</label>
+    <active>False</active>
+    <always_show_toggle>True</always_show_toggle>
+    <group>a</group>
+  </widget>
+</widget>
+
+<widget>
+  <class>GtkWindow</class>
+  <name>window</name>
+  <title>window1</title>
+  <type>GTK_WINDOW_TOPLEVEL</type>
+  <position>GTK_WIN_POS_NONE</position>
+  <modal>False</modal>
+  <default_width>500</default_width>
+  <default_height>400</default_height>
+  <allow_shrink>False</allow_shrink>
+  <allow_grow>True</allow_grow>
+  <auto_shrink>False</auto_shrink>
+
+  <widget>
+    <class>GtkVBox</class>
+    <name>vbox1</name>
+    <homogeneous>False</homogeneous>
+    <spacing>0</spacing>
+
+    <widget>
+      <class>GtkMenuBar</class>
+      <name>menubar</name>
+      <shadow_type>GTK_SHADOW_OUT</shadow_type>
+      <child>
+	<padding>0</padding>
+	<expand>False</expand>
+	<fill>False</fill>
+      </child>
+
+      <widget>
+	<class>GtkMenuItem</class>
+	<name>file</name>
+	<label>File</label>
+	<right_justify>False</right_justify>
+
+	<widget>
+	  <class>GtkMenu</class>
+	  <name>file_menu</name>
+
+	  <widget>
+	    <class>GtkMenuItem</class>
+	    <name>menu_new</name>
+	    <accelerator>
+	      <modifiers>GDK_CONTROL_MASK</modifiers>
+	      <key>GDK_N</key>
+	      <signal>activate</signal>
+	    </accelerator>
+	    <signal>
+	      <name>activate</name>
+	      <handler>on_menu_new_activate</handler>
+	      <last_modification_time>Thu, 20 Mar 2003 08:21:39 GMT</last_modification_time>
+	    </signal>
+	    <label>New</label>
+	    <right_justify>False</right_justify>
+	  </widget>
+
+	  <widget>
+	    <class>GtkMenuItem</class>
+	    <name>menu_open</name>
+	    <accelerator>
+	      <modifiers>GDK_CONTROL_MASK</modifiers>
+	      <key>GDK_O</key>
+	      <signal>activate</signal>
+	    </accelerator>
+	    <signal>
+	      <name>activate</name>
+	      <handler>on_menu_open_activate</handler>
+	      <last_modification_time>Thu, 20 Mar 2003 08:21:39 GMT</last_modification_time>
+	    </signal>
+	    <label>Open</label>
+	    <right_justify>False</right_justify>
+	  </widget>
+
+	  <widget>
+	    <class>GtkMenuItem</class>
+	    <name>separator7</name>
+	    <right_justify>False</right_justify>
+	  </widget>
+
+	  <widget>
+	    <class>GtkMenuItem</class>
+	    <name>menu_save</name>
+	    <accelerator>
+	      <modifiers>GDK_CONTROL_MASK</modifiers>
+	      <key>GDK_S</key>
+	      <signal>activate</signal>
+	    </accelerator>
+	    <signal>
+	      <name>activate</name>
+	      <handler>on_menu_save_activate</handler>
+	      <last_modification_time>Thu, 20 Mar 2003 08:21:39 GMT</last_modification_time>
+	    </signal>
+	    <label>Save</label>
+	    <right_justify>False</right_justify>
+	  </widget>
+
+	  <widget>
+	    <class>GtkMenuItem</class>
+	    <name>separator6</name>
+	    <right_justify>False</right_justify>
+	  </widget>
+
+	  <widget>
+	    <class>GtkMenuItem</class>
+	    <name>menu_export</name>
+	    <signal>
+	      <name>activate</name>
+	      <handler>on_export_test1_activate</handler>
+	      <last_modification_time>Thu, 20 Mar 2003 11:59:22 GMT</last_modification_time>
+	    </signal>
+	    <label>Export SQL</label>
+	    <right_justify>False</right_justify>
+
+	    <widget>
+	      <class>GtkMenu</class>
+	      <name>menu_export_menu</name>
+
+	      <widget>
+		<class>GtkMenuItem</class>
+		<name>export_mysql</name>
+		<signal>
+		  <name>activate</name>
+		  <handler>on_export_mysql_activate</handler>
+		  <last_modification_time>Sat, 22 Mar 2003 15:34:31 GMT</last_modification_time>
+		</signal>
+		<label>Mysql</label>
+		<right_justify>False</right_justify>
+	      </widget>
+
+	      <widget>
+		<class>GtkMenuItem</class>
+		<name>export_pgsql</name>
+		<signal>
+		  <name>activate</name>
+		  <handler>on_export_pgsql_activate</handler>
+		  <last_modification_time>Sat, 22 Mar 2003 15:34:31 GMT</last_modification_time>
+		</signal>
+		<label>PostgreSQL</label>
+		<right_justify>False</right_justify>
+	      </widget>
+
+	      <widget>
+		<class>GtkMenuItem</class>
+		<name>export_fbsql</name>
+		<signal>
+		  <name>activate</name>
+		  <handler>on_export_fbsql_activate</handler>
+		  <last_modification_time>Sat, 22 Mar 2003 15:34:31 GMT</last_modification_time>
+		</signal>
+		<label>Frontbase</label>
+		<right_justify>False</right_justify>
+	      </widget>
+
+	      <widget>
+		<class>GtkMenuItem</class>
+		<name>export_oci8</name>
+		<signal>
+		  <name>activate</name>
+		  <handler>on_export_oci8_activate</handler>
+		  <last_modification_time>Sat, 22 Mar 2003 15:34:31 GMT</last_modification_time>
+		</signal>
+		<label>Oracle 8</label>
+		<right_justify>False</right_justify>
+	      </widget>
+	    </widget>
+	  </widget>
+
+	  <widget>
+	    <class>GtkMenuItem</class>
+	    <name>separator5</name>
+	    <right_justify>False</right_justify>
+	  </widget>
+
+	  <widget>
+	    <class>GtkMenuItem</class>
+	    <name>menu_quit</name>
+	    <accelerator>
+	      <modifiers>GDK_CONTROL_MASK</modifiers>
+	      <key>GDK_Q</key>
+	      <signal>activate</signal>
+	    </accelerator>
+	    <signal>
+	      <name>activate</name>
+	      <handler>on_menu_quit_activate</handler>
+	      <last_modification_time>Thu, 20 Mar 2003 08:21:39 GMT</last_modification_time>
+	    </signal>
+	    <label>Quit</label>
+	    <right_justify>False</right_justify>
+	  </widget>
+	</widget>
+      </widget>
+
+      <widget>
+	<class>GtkMenuItem</class>
+	<name>table</name>
+	<label>Table</label>
+	<right_justify>False</right_justify>
+
+	<widget>
+	  <class>GtkMenu</class>
+	  <name>table_menu</name>
+
+	  <widget>
+	    <class>GtkMenuItem</class>
+	    <name>menu_newTable</name>
+	    <accelerator>
+	      <modifiers>GDK_CONTROL_MASK</modifiers>
+	      <key>GDK_T</key>
+	      <signal>activate</signal>
+	    </accelerator>
+	    <signal>
+	      <name>activate</name>
+	      <handler>on_menu_tableNew_activate</handler>
+	      <last_modification_time>Thu, 20 Mar 2003 08:21:39 GMT</last_modification_time>
+	    </signal>
+	    <label>New</label>
+	    <right_justify>False</right_justify>
+	  </widget>
+	</widget>
+      </widget>
+
+      <widget>
+	<class>GtkMenuItem</class>
+	<name>view1</name>
+	<label>View</label>
+	<right_justify>False</right_justify>
+
+	<widget>
+	  <class>GtkMenu</class>
+	  <name>view1_menu</name>
+
+	  <widget>
+	    <class>GtkMenuItem</class>
+	    <name>menu_zoomIn</name>
+	    <accelerator>
+	      <modifiers>0</modifiers>
+	      <key>GDK_+</key>
+	      <signal>activate</signal>
+	    </accelerator>
+	    <signal>
+	      <name>activate</name>
+	      <handler>on_menu_zoomIn_activate</handler>
+	      <last_modification_time>Sat, 22 Mar 2003 03:01:45 GMT</last_modification_time>
+	    </signal>
+	    <label>Zoom in</label>
+	    <right_justify>False</right_justify>
+	  </widget>
+
+	  <widget>
+	    <class>GtkMenuItem</class>
+	    <name>menu_zoomOut</name>
+	    <accelerator>
+	      <modifiers>0</modifiers>
+	      <key>GDK_-</key>
+	      <signal>activate</signal>
+	    </accelerator>
+	    <signal>
+	      <name>activate</name>
+	      <handler>on_menu_zoomOut_activate</handler>
+	      <last_modification_time>Sat, 22 Mar 2003 03:01:45 GMT</last_modification_time>
+	    </signal>
+	    <label>Zoom out</label>
+	    <right_justify>False</right_justify>
+	  </widget>
+	</widget>
+      </widget>
+    </widget>
+
+    <widget>
+      <class>GtkHBox</class>
+      <name>hbox1</name>
+      <homogeneous>False</homogeneous>
+      <spacing>0</spacing>
+      <child>
+	<padding>0</padding>
+	<expand>False</expand>
+	<fill>False</fill>
+      </child>
+
+      <widget>
+	<class>GtkLabel</class>
+	<name>label1</name>
+	<label>   Database : </label>
+	<justify>GTK_JUSTIFY_CENTER</justify>
+	<wrap>False</wrap>
+	<xalign>0.5</xalign>
+	<yalign>0.5</yalign>
+	<xpad>0</xpad>
+	<ypad>0</ypad>
+	<child>
+	  <padding>0</padding>
+	  <expand>False</expand>
+	  <fill>False</fill>
+	</child>
+      </widget>
+
+      <widget>
+	<class>GtkEntry</class>
+	<name>databaseName</name>
+	<can_focus>True</can_focus>
+	<editable>True</editable>
+	<text_visible>True</text_visible>
+	<text_max_length>0</text_max_length>
+	<text></text>
+	<child>
+	  <padding>0</padding>
+	  <expand>True</expand>
+	  <fill>True</fill>
+	</child>
+      </widget>
+
+      <widget>
+	<class>Placeholder</class>
+      </widget>
+
+      <widget>
+	<class>Placeholder</class>
+      </widget>
+    </widget>
+
+    <widget>
+      <class>GtkScrolledWindow</class>
+      <name>scrolledwindow1</name>
+      <hscrollbar_policy>GTK_POLICY_AUTOMATIC</hscrollbar_policy>
+      <vscrollbar_policy>GTK_POLICY_AUTOMATIC</vscrollbar_policy>
+      <hupdate_policy>GTK_UPDATE_CONTINUOUS</hupdate_policy>
+      <vupdate_policy>GTK_UPDATE_CONTINUOUS</vupdate_policy>
+      <child>
+	<padding>0</padding>
+	<expand>True</expand>
+	<fill>True</fill>
+      </child>
+
+      <widget>
+	<class>GtkLayout</class>
+	<name>layout</name>
+	<area_width>400</area_width>
+	<area_height>400</area_height>
+	<hstep>10</hstep>
+	<vstep>10</vstep>
+      </widget>
+    </widget>
+  </widget>
+</widget>
+
+<widget>
+  <class>GtkFileSelection</class>
+  <name>dialog_file</name>
+  <border_width>10</border_width>
+  <visible>False</visible>
+  <title>Select File</title>
+  <type>GTK_WINDOW_TOPLEVEL</type>
+  <position>GTK_WIN_POS_CENTER</position>
+  <modal>True</modal>
+  <allow_shrink>False</allow_shrink>
+  <allow_grow>True</allow_grow>
+  <auto_shrink>False</auto_shrink>
+  <show_file_op_buttons>True</show_file_op_buttons>
+
+  <widget>
+    <class>GtkButton</class>
+    <child_name>FileSel:ok_button</child_name>
+    <name>btn_fileOk</name>
+    <can_default>True</can_default>
+    <can_focus>True</can_focus>
+    <label>OK</label>
+    <relief>GTK_RELIEF_NORMAL</relief>
+  </widget>
+
+  <widget>
+    <class>GtkButton</class>
+    <child_name>FileSel:cancel_button</child_name>
+    <name>btn_fileCancel</name>
+    <can_default>True</can_default>
+    <can_focus>True</can_focus>
+    <label>Cancel</label>
+    <relief>GTK_RELIEF_NORMAL</relief>
+  </widget>
+</widget>
+
+<widget>
+  <class>GtkDialog</class>
+  <name>dialog_new</name>
+  <visible>False</visible>
+  <title>Create a New database?</title>
+  <type>GTK_WINDOW_TOPLEVEL</type>
+  <position>GTK_WIN_POS_CENTER</position>
+  <modal>False</modal>
+  <allow_shrink>True</allow_shrink>
+  <allow_grow>True</allow_grow>
+  <auto_shrink>False</auto_shrink>
+
+  <widget>
+    <class>GtkVBox</class>
+    <child_name>Dialog:vbox</child_name>
+    <name>dialog-vbox1</name>
+    <homogeneous>False</homogeneous>
+    <spacing>0</spacing>
+
+    <widget>
+      <class>GtkHBox</class>
+      <child_name>Dialog:action_area</child_name>
+      <name>dialog-action_area1</name>
+      <border_width>10</border_width>
+      <homogeneous>True</homogeneous>
+      <spacing>5</spacing>
+      <child>
+	<padding>0</padding>
+	<expand>False</expand>
+	<fill>True</fill>
+	<pack>GTK_PACK_END</pack>
+      </child>
+
+      <widget>
+	<class>GtkHButtonBox</class>
+	<name>hbuttonbox1</name>
+	<layout_style>GTK_BUTTONBOX_DEFAULT_STYLE</layout_style>
+	<spacing>30</spacing>
+	<child_min_width>85</child_min_width>
+	<child_min_height>27</child_min_height>
+	<child_ipad_x>7</child_ipad_x>
+	<child_ipad_y>0</child_ipad_y>
+	<child>
+	  <padding>0</padding>
+	  <expand>True</expand>
+	  <fill>True</fill>
+	</child>
+
+	<widget>
+	  <class>GtkButton</class>
+	  <name>btn_doNew</name>
+	  <can_default>True</can_default>
+	  <can_focus>True</can_focus>
+	  <label>Yes - New Database</label>
+	  <relief>GTK_RELIEF_NORMAL</relief>
+	</widget>
+
+	<widget>
+	  <class>GtkButton</class>
+	  <name>btn_hideNew</name>
+	  <can_default>True</can_default>
+	  <can_focus>True</can_focus>
+	  <label>No - I need to save it</label>
+	  <relief>GTK_RELIEF_NORMAL</relief>
+	</widget>
+      </widget>
+    </widget>
+
+    <widget>
+      <class>GtkLabel</class>
+      <name>label2</name>
+      <label>Are you sure you
+want create a new database?
+
+If you have not saved yet 
+ you will loose all the changes</label>
+      <justify>GTK_JUSTIFY_CENTER</justify>
+      <wrap>False</wrap>
+      <xalign>0.5</xalign>
+      <yalign>0.5</yalign>
+      <xpad>0</xpad>
+      <ypad>0</ypad>
+      <child>
+	<padding>52</padding>
+	<expand>True</expand>
+	<fill>True</fill>
+      </child>
+    </widget>
+  </widget>
+</widget>
+
+<widget>
+  <class>GtkFileSelection</class>
+  <name>dialog_saveas</name>
+  <border_width>10</border_width>
+  <visible>False</visible>
+  <title>Select File</title>
+  <type>GTK_WINDOW_TOPLEVEL</type>
+  <position>GTK_WIN_POS_NONE</position>
+  <modal>False</modal>
+  <allow_shrink>False</allow_shrink>
+  <allow_grow>True</allow_grow>
+  <auto_shrink>False</auto_shrink>
+  <show_file_op_buttons>True</show_file_op_buttons>
+
+  <widget>
+    <class>GtkButton</class>
+    <child_name>FileSel:ok_button</child_name>
+    <name>btn_saveasOk</name>
+    <can_default>True</can_default>
+    <can_focus>True</can_focus>
+    <label>OK</label>
+    <relief>GTK_RELIEF_NORMAL</relief>
+  </widget>
+
+  <widget>
+    <class>GtkButton</class>
+    <child_name>FileSel:cancel_button</child_name>
+    <name>btn_saveasCancel</name>
+    <can_default>True</can_default>
+    <can_focus>True</can_focus>
+    <label>Cancel</label>
+    <relief>GTK_RELIEF_NORMAL</relief>
+  </widget>
+</widget>
+
+</GTK-Interface>
