@@ -80,6 +80,16 @@ class Gtk_MDB_Designer_Column {
         if ($this->sequence) {
             unset($this->default);
         }
+        switch ($this->type) {
+            case 'date':
+            case 'datetime':
+            case 'time':
+                if (isset($this->default) && !strlen($this->default)) {
+                    unset($this->default);
+                }
+            
+        }
+        
         $r = MDB_Manager_Common::getFieldDeclaration(&$db, $this->name, $this->toMdb());
         
        // print_r($db);

@@ -174,8 +174,9 @@ class Gtk_MDB_Designer {
     */   
     function loadFile($file) {
     
-
-        $this->database->destroy();
+        if ($this->database) {
+            $this->database->destroy();
+        }
         // load a new parser.
         
         $parser = &new Gtk_MDB_Designer_Parser;

@@ -100,42 +100,66 @@ class Gtk_MDB_Designer_Database {
     }
     /**
     * translate the object to a create tables etc. SQL
-    * 
+    * this is a recersive call function - if table key = '' - it starts the loop.
+    *    
+    * @param    database type - used to call MDB factory method.
+    * @param    tablekey - blank to start the routine - otherwise returns table and inherited table sql.
+    *
     * @return   string - the database sql create stuff.
     * @access   public
     */
     
      
-    function toSQL($dbtype) {
+    function toSQL($dbtype,$tablekey = '') {
         // test mdb creation..
-        require_once 'MDB.php';
-        $db = MDB::factory($dbtype);
+        static $done;
+        static $db;
         //echo "loaded factory?";
         //print_r($db);
-        
-        
-        
+        // this part outputs a table ..
         $ret = '';
-        // attempt to handle inheritance.. = really needs recursive coding.
+        if ($tablekey != '') {
+            // already exported.
+            if (in_array($tablekey,$done)) {
+                return;
+            }
+            
+            if (isset($this->tables[$tablekey]->inherits) && strlen($this->tables[$tablekey]->inherits)) {
+                $keyB = $this->findTableByName($this->tables[$tablekey]->inherits);
+                // fudge..
+                if (!$keyB) {
+                    $this->tables[$tablekey]->inherits = '';
+                    return;
+                }
+                
+                $ret = $this->toSQL('',$keyB);
+            }
+            $done[] = $tablekey;
+            //echo "DO $tablekey\n";
+            return  $ret . $this->tables[$tablekey]->toSQL($db);
+        }
+        if ($dbtype == '') {
+            return '';
+        }
+        // the code to start this..
+        require_once 'MDB.php';
+        $db = MDB::factory($dbtype);
         $done = array();
         foreach($this->tables as $key => $table) {
-            if (isset($done[$key])) {
-                continue;
-            }
-            if ($table->inherits) {
-                $keyB = $this->findTableByName($table->inherits);
-                if (!isset($done[$keyB])) { 
-                    $ret .= $this->tables[$keyB]->toSQL($db);
-                }
-                $done[$keyB] = true;
-            }
-            $ret .= $table->toSQL($db);
-            $done[$key]= true;
+          $ret .= $this->toSQL($db,$key);  
         }
         return $ret;
         
     }
     
+    /**
+    * find a table key by name = as the key=>value association in the table
+    * gets broken as soon as you edit it..
+    * 
+    * @param    string table name to look for
+    * @return   string - key found.
+    * @access   public
+    */   
     function findTableByName($name) {
         foreach($this->tables as $k=>$table) {
             if ($table->name == $name) {
