@@ -27,6 +27,7 @@ class Gtk_MDB_Designer_Interface_Column extends Gtk_MDB_Designer_Column {
     var $widgets = array(); // associative array of the widgets 
     var $table;             // the parent  Gtk_MDB_Designer_Interface_Column object
     var $extra = array('isIndex','sequence'); // extra stuff to put in xml file.
+    var $unique;        
    /**
     * build the widgets that make up a column (eg. 1 row)
     * 
@@ -41,15 +42,16 @@ class Gtk_MDB_Designer_Interface_Column extends Gtk_MDB_Designer_Column {
         $this->table = &$table;
         $widgets = array(
             // format:
-            //name       widget                  display,   width,   pos 
-            'name'     => array('GtkEntry',          null,       80,     1 , 'changed'),
-            'type'      =>array('GtkEntry',           null,      60,     2 , 'button-press-event'),
-            'length'   =>array('GtkEntry',           null,      20,      3 , 'changed'),
-            'notnull'   =>array('GtkToggleButton',    'N',       20,     4 , 'toggled'),
-            'isIndex'   =>array('GtkToggleButton',    'I',       20,     5 , 'toggled'),
-            'sequence'  => array('GtkToggleButton',   '++',       20,     6 , 'toggled'),
-            'default'   =>array('GtkEntry',           null,      40,     7 , 'changed'),
-            'delete'   =>array('GtkButton',           'X',      20,     8 , 'pressed')
+            //name                       display,   width,   pos , span , 
+            'name'     =>  array(null,       80,     1 , 1),
+            'type'      => array(null,      60,     2 , 1),
+            'length'   =>  array(null,      20,      3 , 1),
+            'notnull'   => array('N',       20,     4 , 1),
+            'isIndex'   => array('I',       20,     5 , 1),
+            'sequence'  => array('++',       20,     6 , 1),
+            'unique'   =>  array('U',      20,     7 , 1),
+            'default'   => array(null,      40,     8 , 2)
+            
         );
     
         foreach ($widgets as $string=>$config) {
@@ -74,7 +76,8 @@ class Gtk_MDB_Designer_Interface_Column extends Gtk_MDB_Designer_Column {
                 case 'notnull':
                 case 'isIndex':
                 case 'sequence':
-                    $this->widgets[$string] = &new GtkToggleButton($config[1]);
+                case 'unique':
+                    $this->widgets[$string] = &new GtkToggleButton($config[0]);
                     $this->widgets[$string]->set_active((int) $this->$string);
                     $this->widgets[$string]->connect('toggled',array(&$this,'callbackSetValue'),$string);
                     
@@ -86,10 +89,14 @@ class Gtk_MDB_Designer_Interface_Column extends Gtk_MDB_Designer_Column {
                 
             }  
             
-            $this->widgets[$string]->set_usize($config[2],20);
-            $this->table->addCell($this->widgets[$string],$config[3],$row, GTK_EXPAND|GTK_FILL);
+            $this->widgets[$string]->set_usize($config[1],20);
+            $this->table->addCell($this->widgets[$string],$config[2],$row, $config[3], GTK_EXPAND|GTK_FILL);
             $this->widgets[$string]->show();
         }
+        $this->deleteMenuItem = &new GtkMenuItem($this->name);
+        $this->deleteMenuItem->show();
+        $this->deleteMenuItem->connect('activate',array(&$this,'callbackRowDelete'));
+        $this->table->deleteMenu->add( $this->deleteMenuItem);
         $this->setVisable();
             
             
@@ -127,7 +134,7 @@ class Gtk_MDB_Designer_Interface_Column extends Gtk_MDB_Designer_Column {
             case 'notnull':
             case 'isIndex':
             case 'sequence':
-                
+            case 'unique':    
                 $value = (int) $object->get_active();
                 if (@$this->$field == $value) {
                     return;
@@ -195,22 +202,22 @@ class Gtk_MDB_Designer_Interface_Column extends Gtk_MDB_Designer_Column {
     */
     function setVisable() {
         $visable = array(
-            //type              // length // default // NotNull // Indexed // Sequence/Auto
-            'integer'  => array(  1,1,1,1,1,0),
-            'decimal'  => array(  1,1,1,1,0,0.0),
-            'float'    => array(  1,1,1,1,0,0.0),
-            'double'   => array(  1,1,1,1,0,0),
-            'text'     => array(  1,1,1,1,0,''),
-            'cblob'    => array(  1,0,0,0,0),
-            'blob'     => array(  1,0,0,0,0),
-            'boolean'  => array(  1,1,1,1,0),
-            'date'     => array(  0,1,1,1,0),
-            'timestamp'=> array(  0,1,1,1,0),
-            'time'     => array(  0,1,1,1,0)
+            //type              // length // default // NotNull // Indexed // Sequence/Auto // unique // default value
+            'integer'  => array(  1,1,1,1,1,1,0),
+            'decimal'  => array(  1,1,1,1,0,1,0.0),
+            'float'    => array(  1,1,1,1,0,1,0.0),
+            'double'   => array(  1,1,1,1,0,1,0),
+            'text'     => array(  1,1,1,1,0,1,''),
+            'cblob'    => array(  1,0,0,0,0,0),
+            'blob'     => array(  1,0,0,0,0,0),
+            'boolean'  => array(  1,1,1,1,0,0),
+            'date'     => array(  0,1,1,1,0,1),
+            'timestamp'=> array(  0,1,1,1,0,1),
+            'time'     => array(  0,1,1,1,0,1)
         );
         
         $vis = $visable[$this->type];
-        foreach(array('length','default','notnull','isIndex','sequence') as $k=>$v) {
+        foreach(array('length','default','notnull','isIndex','sequence','unique') as $k=>$v) {
             if ($vis[$k]) {
                 $this->widgets[$v]->show();
                 $this->visable[$v] = 1;
@@ -260,6 +267,12 @@ class Gtk_MDB_Designer_Interface_Column extends Gtk_MDB_Designer_Column {
             $this->table->table->remove($this->widgets[$w]);
             $this->widgets[$w]->destroy();
         }
+        $this->deleteMenuItem->hide();
+         
+        $this->table->deleteMenu->remove($this->deleteMenuItem);
+        $this->deleteMenuItem->destroy();
+        $this->table->frame->hide();
+        $this->table->frame->show();
     }
     
    /**
@@ -294,8 +307,36 @@ class Gtk_MDB_Designer_Interface_Column extends Gtk_MDB_Designer_Column {
         $this->setVisable();
         $this->widgets['name']->set_sensitive(true);
     }
+     /**
+    * make sure the menau
+    *
+    * @access   public
+    */
     
+    function callbackDeletePopup() {
+        if ($this->deleted) {
+            return;
+        }
+        $child  = $this->deleteMenuItem->child;
+        $name = $this->name;
+        if (!$name) {   
+            $name = 'UNNAMED';
+        }
+        $child->set_text('Delete Field : '.  $name);
+        $this->deleteMenuItem->show();
     
+    }
+    /**
+    * override standard xml export with our extra variables
+    *
+    * @access   public
+    */
+    
+
+    
+    function toXml($array = array()) {
+        return parent::toXml(array_merge($array, array('isIndex','sequence','unique')));
+    }
     
 }
 ?>

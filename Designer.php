@@ -54,12 +54,14 @@ class Gtk_MDB_Designer {
     var $menu;     // the popup menu for the types (GtkMenu)
     var $layout;   // the layout            (GtkLayout)
     var $activeColumn; // the active column object for popup type selection
+    var $startFile = ''; // initial file to load.
     /**
     * Constructor - not called automatically - so it could be wrapped into phpmole?
     * 
     * @access   public
     */    
-    function start($file) {
+    function start($file='') {
+        $this->startFile = $file;
         $this->loadInterface();
         if ($file) {
             $this->loadFile($file);
@@ -85,7 +87,10 @@ class Gtk_MDB_Designer {
              dl('php_gtk.' .PHP_SHLIB_SUFFIX    );
         }
         $this->glade = new GladeXML(dirname(__FILE__).'/Designer/Designer.glade');
+        $window = $this->glade->get_widget('window');
+        
         $this->layout = $this->glade->get_widget('layout');
+        
         $this->menu = $this->glade->get_widget('menu');
         
         define('GDK_HAND2',60);
@@ -320,11 +325,19 @@ class Gtk_MDB_Designer {
     */   
     function callbackShutdown()
     {
-        $this->datbase->save('.tmp');
+        
+        $this->database->save('.tmp');
         gtk::main_quit();
         exit;
     }
-     
+    /**
+    * call back for pressing close button (phase 2) on the window = and quit button.
+    * 
+    * @access   public
+    */  
+    function callbackWindowDisplayed() {
+        Gtk_MDB_Designer_Interface_Database::setWidgetStyle($this->layout,'','#cccccc',TRUE);
+    }
     /* these could probably be removed by connect_object('...',$this->glade->get_widget('dialog_new'),'hide') */
     
     function hideNewDialog() 

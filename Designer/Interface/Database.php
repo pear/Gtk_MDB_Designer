@@ -45,6 +45,7 @@ class Gtk_MDB_Designer_Interface_Database extends Gtk_MDB_Designer_Database {
         $this->layout   = &$designer->layout;
         $this->glade    = &$designer->glade;
         // reset size..
+       
         $this->layout->set_size($this->maxX,$this->maxY);
         
         $menu = $this->glade->get_widget('menubar');
@@ -156,6 +157,39 @@ class Gtk_MDB_Designer_Interface_Database extends Gtk_MDB_Designer_Database {
         $this->designer->setTitle();
         $this->dirty = true;
     }
+    /**
+    * set the style of a widget
+    *
+    * @access   public
+    */
     
+    
+    function setWidgetStyle(&$widget,$fgcolor='',$bgcolor='',$copy=false) {
+        if ($copy) {
+            $oldstyle = $widget->get_style();
+            $newstyle = $oldstyle->copy();
+        } else {
+            $newstyle = &new GtkStyle();
+        }
+        if ($fgcolor) { // set foreground color
+            $fg = &new GdkColor($fgcolor);
+            $newstyle->fg[GTK_STATE_PRELIGHT] = $fg;
+            $newstyle->fg[GTK_STATE_NORMAL] = $fg;
+            $newstyle->fg[GTK_STATE_ACTIVE] = $fg;
+            $newstyle->fg[GTK_STATE_SELECTED] = $fg;
+            $newstyle->fg[GTK_STATE_INSENSITIVE] = $fg;
+            //$newstyle->bg_pixmap=NULL;
+        }
+        if ($bgcolor) { // set background color
+            $bg = &new GdkColor($bgcolor);
+            $newstyle->bg[GTK_STATE_PRELIGHT] = $bg;
+            $newstyle->bg[GTK_STATE_NORMAL] = $bg;
+            $newstyle->bg[GTK_STATE_ACTIVE] = $bg;
+            $newstyle->bg[GTK_STATE_SELECTED] = $bg;
+            $newstyle->bg[GTK_STATE_INSENSITIVE] = $bg;
+            //$newstyle->bg_pixmap=NULL;
+        }
+        $widget->set_style($newstyle);
+    }
 }
 ?>

@@ -36,8 +36,7 @@ class Gtk_MDB_Designer_Column {
    
     var $deleted = false;   // has it been deleted.
     
-    var $extra = array();   // extra items to export into xml file
-    /**
+     /**
     * output XML
     * 
     * @access   public
@@ -45,14 +44,14 @@ class Gtk_MDB_Designer_Column {
     */
     
     
-    function toXml() {
+    function toXml($array=array()) {
         if ($this->deleted) {
             return;
         }
         if (!strlen($this->name)) {
             return;
         }
-        $export = array_merge(array('name','type','length','default','notnull'),$this->extra);
+        $export = array_merge(array('name','type','length','default','notnull'),$array);
         $ret  = "      <field>\n";
         foreach($export as $k) {
             if (!isset($this->$k)) {
