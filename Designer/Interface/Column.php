@@ -298,8 +298,8 @@ class Gtk_MDB_Designer_Interface_Column extends Gtk_MDB_Designer_Column {
        
     }
     function callbackDragMove() {
-        $da =  &$this->table->database->drawingArea;
-        $pix = &$this->table->database->pixmap;
+        $da =  &$this->table->database->designer->drawingArea;
+        $pix = &$this->table->database->designer->pixmap;
         $w = $da->window;
         
         if ($this->lastEnd) {

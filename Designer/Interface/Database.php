@@ -67,77 +67,9 @@ class Gtk_MDB_Designer_Interface_Database extends Gtk_MDB_Designer_Database {
             
         $menu->set_sensitive(true);
         // create each row.
-        $this->loadDrawingArea();
+        $this->designer->loadDrawingArea();
     }
     
-    function loadDrawingArea() {
-        $this->drawingArea  = &new GtkDrawingArea();
-        
-        
-        
-        //print_r(array($this->maxX,$this->maxY));
-        $this->drawingArea->size($this->maxX,$this->maxY);
-        $this->layout->put( $this->drawingArea ,0,0);
-        $this->drawingArea->show();
-        $this->drawingArea->connect("configure_event",        array(&$this,"drawingAreaCallbackConfigure"));
-        $this->drawingArea->connect("expose_event",           array(&$this,"drawingAreaCallbackExpose"));
-    
-    }
-    
-    
-    var $pixmap = false;
-    var $drawingArea;
-    
-    // the callback to create the pixmap & start building
-    function drawingAreaCallbackConfigure($widget, $event) { 
-        //echo "da configure\n";
-        if (@$this->pixmap) {
-            return true;
-        }
-        $this->pixmap = new GdkPixmap($this->drawingArea->window,
-                $this->maxX ,$this->maxY,
-                -1);
-
-        gdk::draw_rectangle($this->pixmap, 
-            $this->drawingArea->style->white_gc,
-            true, 0, 0,
-            $this->maxX ,$this->maxY);
-        // flash cursor GC
-        $window = $this->drawingArea->window;
-        $cmap = $this->drawingArea->get_colormap();
-        $this->_cursorGC = $window->new_gc();
-        $this->_cursorGC->background =  $cmap->alloc("#000000");
-        $this->_cursorGC->function   =  GDK_INVERT;    
-        
-        return true;
-    }
-    // standard callback to repaint a drawing area
-    
-    function drawingAreaCallbackExpose($widget,$event) { 
-        //echo "da expose\n";
-        if (!$this->pixmap) {
-            return;
-        }
-        /*
-        I THINK THIS IS A WINDOWS FUDGE FIX
-        if (!$this->_flag_rebuild  && ($this->layout->allocation->width > 400) && ($this->_area_x != $this->layout->allocation->width )) {
-
-            if (  abs($this->_area_x - $this->layout->allocation->width) > 15) {
-                $this->_new_area_x = $this->layout->allocation->width ;
-
-                gtk::timeout_add(500, array(&$this,'_ChangeSize'), $this->layout->allocation->width);
-            }
-
-        }
-        */
-        gdk::draw_pixmap($this->drawingArea->window,
-            $widget->style->fg_gc[$widget->state],
-            $this->pixmap,
-            $event->area->x, $event->area->y,
-            $event->area->x, $event->area->y,
-            $event->area->width, $event->area->height);
-        return false;
-    }
     
     
      /**
@@ -160,18 +92,18 @@ class Gtk_MDB_Designer_Interface_Database extends Gtk_MDB_Designer_Database {
             //$this->pixmap->destroy();
             
         //}
-        if ($this->pixmap) {
-            $this->pixmap = new GdkPixmap(
-                    $this->drawingArea->window,
+        if ($this->designer->pixmap) {
+            $this->designer->pixmap = new GdkPixmap(
+                    $this->designer->drawingArea->window,
                     $this->maxX ,$this->maxY,
                     -1);
                     
-             gdk::draw_rectangle($this->pixmap, 
-                $this->drawingArea->style->white_gc,
+            gdk::draw_rectangle($this->designer->pixmap, 
+                $this->designer->drawingArea->style->white_gc,
                 true, 0, 0,
                 $this->maxX ,$this->maxY);
             
-            $this->drawingArea->size($this->maxX,$this->maxY);
+            $this->designer->drawingArea->size($this->maxX,$this->maxY);
         }
         //$this->drawingArea->hide();
         //$this->drawingArea->show();

@@ -63,12 +63,12 @@ class Gtk_MDB_Designer {
     function start($file='') {
         $this->startFile = $file;
         $this->loadInterface();
-        if ($file) {
-            $this->loadFile($file);
-        } else {
+        //if ($file) {
+        //    $this->loadFile($file);
+        //} else {
             $this->newFile();
-        }
-        
+        //}
+       
         gtk::main();
     }
     
@@ -205,6 +205,91 @@ class Gtk_MDB_Designer {
     
     
     
+    function loadDrawingArea() {
+        if ($this->drawingArea) {
+            return;
+        }
+        $this->drawingArea  = &new GtkDrawingArea();
+        
+        
+        
+        //print_r(array($this->maxX,$this->maxY));
+        $this->drawingArea->size($this->database->maxX,$this->database->maxY);
+        $this->layout->put( $this->drawingArea ,0,0);
+        $this->drawingArea->show();
+        $this->drawingArea->connect("configure_event",        array(&$this,"drawingAreaCallbackConfigure"));
+        $this->drawingArea->connect("expose_event",           array(&$this,"drawingAreaCallbackExpose"));
+    
+    }
+    
+    
+    var $pixmap = false;
+    var $drawingArea;
+    
+    // the callback to create the pixmap & start building
+    function drawingAreaCallbackConfigure($widget, $event) { 
+        //echo "da configure\n";
+        if (@$this->pixmap) {
+            return true;
+        }
+        $this->pixmap = new GdkPixmap($this->drawingArea->window,
+                $this->database->maxX ,$this->database->maxY,
+                -1);
+
+        gdk::draw_rectangle($this->pixmap, 
+            $this->drawingArea->style->white_gc,
+            true, 0, 0,
+            $this->database->maxX ,$this->database->maxY);
+        // flash cursor GC
+        $window = $this->drawingArea->window;
+        $cmap = $this->drawingArea->get_colormap();
+        $this->_cursorGC = $window->new_gc();
+        $this->_cursorGC->background =  $cmap->alloc("#000000");
+        $this->_cursorGC->function   =  GDK_INVERT;    
+        ///if ($this->designer->startFile) {
+        //    $file = $this->designer->startFile;
+        //    $this->designer->startFile = false;
+        //    $this->designer->loadFile($file);
+        //    return true;
+        //}
+        return true;
+    }
+    // standard callback to repaint a drawing area
+    
+    function drawingAreaCallbackExpose($widget,$event) { 
+        //echo "da expose\n";
+        
+        
+        
+        if (!$this->pixmap) {
+            return;
+        }
+        /*
+        I THINK THIS IS A WINDOWS FUDGE FIX
+        if (!$this->_flag_rebuild  && ($this->layout->allocation->width > 400) && ($this->_area_x != $this->layout->allocation->width )) {
+
+            if (  abs($this->_area_x - $this->layout->allocation->width) > 15) {
+                $this->_new_area_x = $this->layout->allocation->width ;
+
+                gtk::timeout_add(500, array(&$this,'_ChangeSize'), $this->layout->allocation->width);
+            }
+
+        }
+        */
+        gdk::draw_pixmap($this->drawingArea->window,
+            $widget->style->fg_gc[$widget->state],
+            $this->pixmap,
+            $event->area->x, $event->area->y,
+            $event->area->x, $event->area->y,
+            $event->area->width, $event->area->height);
+            
+        if ($this->startFile) {
+            $file = $this->startFile;
+            $this->startFile=false;
+            $this->loadFile($file);
+        }
+        return false;
+    }
     
     
     
