@@ -145,7 +145,12 @@ class Gtk_MDB_Designer {
         //$new->connect('activate',array(&$this,'showSaveAsDialog'));
         
      
-        
+        $scrolledwindow = $this->glade->get_widget('layoutScrollbars');
+        $hadj = $scrolledwindow->get_hadjustment();
+        $vadj = $scrolledwindow->get_vadjustment();
+        $hadj->connect('value-changed', array(&$this,'callbackWindowsKludge'));
+        $vadj->connect('value-changed',  array(&$this,'callbackWindowsKludge'));
+               
         
         $window = $this->glade->get_widget('window');
         $window->connect('destroy',      array(&$this,'callbackShutdown'));
@@ -237,17 +242,26 @@ class Gtk_MDB_Designer {
         if (@$this->pixmap) {
             return true;
         }
+        if (!$this->drawingArea->window) {
+            return;
+        }
+        
         $this->pixmap = new GdkPixmap($this->drawingArea->window,
                 //$this->database->maxX ,$this->database->maxY,
-                10000,10000
+                5000,5000
                 -1);
-
+        if (!$this->pixmap) {
+            return;
+        }
+        $maxX = $this->database ? $this->database->maxX : 500;
+        $maxY = $this->database ? $this->database->maxY : 500;
+        
         gdk::draw_rectangle($this->pixmap, 
             $this->drawingArea->style->white_gc,
             true, 0, 0,
             
             //10000,10000);
-            $this->database->maxX ,$this->database->maxY);
+            $maxX ,$maxY);
         // flash cursor GC
         $window = $this->drawingArea->window;
         $cmap = $this->drawingArea->get_colormap();
@@ -435,7 +449,20 @@ class Gtk_MDB_Designer {
         $this->database->saveLinksIni();
     }
     
-    
+       
+    /**
+    * Windows Kludge for broken gtklayout
+    *
+    * @access   public|private
+    */
+  
+    function callbackWindowsKludge() 
+    {
+        //echo "windows kludge";
+        $this->layout->queue_draw();
+        $this->layout->hide();
+        $this->layout->show();
+    } 
     
     /* these could probably be removed by connect_object('...',$this->glade->get_widget('dialog_new'),'hide') */
     

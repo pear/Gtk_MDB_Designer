@@ -16,7 +16,7 @@ REM ----------------------------------------------------------------------
 REM  Authors:     Alexander Merz (alexmerz@php.net)                         
 REM ----------------------------------------------------------------------
 REM
-REM  $Id: gtkmdbdesigner.bat,v 1.1 2003-03-22 16:54:07 alan_k Exp $
+REM  $Id: gtkmdbdesigner.bat,v 1.2 2003-04-01 03:06:15 alan_k Exp $
 
 REM change this lines to match the paths of your system
 REM -------------------
@@ -24,5 +24,5 @@ REM -------------------
 set PHP_BIN=@prefix@\bin\php.exe
 set PEAR_PATH=@include_path@
 
-%PHP_BIN% -C -d include_path=%PEAR_PATH% -f %PEAR_PATH%\scripts\phpcodedoc.in %1 %2 %3 %4 %5 %6 %7 %8 %9
+%PHP_BIN% -C -d include_path=%PEAR_PATH% -f %PEAR_PATH%\gtkmdbdesigner.in %1 %2 %3 %4 %5 %6 %7 %8 %9
 @ECHO ON
