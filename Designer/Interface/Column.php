@@ -239,17 +239,17 @@ class Gtk_MDB_Designer_Interface_Column extends Gtk_MDB_Designer_Column {
         }
         // set defaults if not null and !sequence and it's empty.
         if ($this->notnull && !$this->sequence && !strlen(@$this->default)) {
-            $this->default = $vis[5];
+            $this->default = $vis[6];
             $this->widgets['default']->set_text($this->default);
         }
         
         if ($this->visable['default'] &&  
             isset($this->default) && 
             $this->default == '' && 
-            isset($vis[5]) && 
-            ($this->default !== $vis[5])) 
+            isset($vis[6]) && 
+            ($this->default !== $vis[6])) 
         {
-            $this->default = $vis[5];
+            $this->default = $vis[6];
             $this->widgets['default']->set_text($this->default);
         }
         

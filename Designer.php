@@ -148,20 +148,8 @@ class Gtk_MDB_Designer {
         
     }
    
-   
-   
-      
-    
-    
-   
-    
   
     
-    
-    /* ----------------------------------------------------------------------------------*/
-    /*            Gtk Specific methods                                                   */
-    /* ----------------------------------------------------------------------------------*/
-   
    /**
     * set the Window Title
     * 
@@ -229,9 +217,9 @@ class Gtk_MDB_Designer {
         $this->database->buildWidgets($this);
     }
    
-    /* --------------------------------------------------------------------------------- */
-    /*           Main Callbacks                                                          */
-    /* --------------------------------------------------------------------------------- */
+    /* ---------------------------------------------------------- */
+    /*           Main Callbacks                                   */
+    /* ---------------------------------------------------------- */
    
     /**
     * callback relay popup menu to curent callback.
@@ -329,14 +317,6 @@ class Gtk_MDB_Designer {
         $this->database->save('.tmp');
         gtk::main_quit();
         exit;
-    }
-    /**
-    * call back for pressing close button (phase 2) on the window = and quit button.
-    * 
-    * @access   public
-    */  
-    function callbackWindowDisplayed() {
-        Gtk_MDB_Designer_Interface_Database::setWidgetStyle($this->layout,'','#cccccc',TRUE);
     }
     /* these could probably be removed by connect_object('...',$this->glade->get_widget('dialog_new'),'hide') */
     
