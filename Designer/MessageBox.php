@@ -13,8 +13,12 @@
 // | obtain it through the world-wide-web, please send a note to          |
 // | license@php.net so we can mail you a copy immediately.               |
 // +----------------------------------------------------------------------+
-// | Authors:  nobody <nobody@localhost>                                  |
+// | Authors:  Alan Knowles <alan@akbkhome.com>                           |
 // +----------------------------------------------------------------------+
+//
+// Based loosely on the MessageBox script by Christian Weiske cweiske@cweiske.de
+//
+//
 //
 // $Id$
 //
