@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<database>
+  <name>New Database</name>
+  <create>1</create>
+  <table>
+    <name>test</name>
+    <x>20</x>
+    <y>20</y>
+    <declaration>
+      <field>
+        <name>a</name>
+        <type>integer</type>
+      </field>
+      <field>
+        <name>b</name>
+        <type>decimal</type>
+        <default>0</default>
+      </field>
+      <field>
+        <name>c</name>
+        <type>text</type>
+        <length>123</length>
+        <default>hello</default>
+      </field>
+      <field>
+        <name>d</name>
+        <type>cblob</type>
+        <length>123</length>
+      </field>
+      <field>
+        <name>e</name>
+        <type>text</type>
+      </field>
+    </declaration>
+  </table>
+</database>

@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<!DOCTYPE package SYSTEM "../package.dtd">
+<package version="1.0">
+  <name>Gtk_MDB_Designer</name>
+  <summary>An Gtk Database designer</summary>
+  <description>A very simple tool to design databases
+  
+  
+</description>
+  <license>PHP License</license>
+  <maintainers>
+    <maintainer>
+      <user>alan_k</user>
+      <role>lead</role>
+      <name>Alan Knowles</name>
+      <email>alan@akbkhome.com</email>
+    </maintainer>
+  </maintainers>
+  
+  
+  
+    <release>
+      <version>0.1</version>
+      <date>2003-03-20</date>
+      <notes>
+        First test version
+          
+        
+      </notes>
+      <state>stable</state>
+    </release>
+     
+     
+     
+    <filelist>
+        <dir name="/" baseinstalldir="Gtk/MDB" role="php">
+            <file>Designer.php</file>
+            
+            <dir name="Designer" role="php">
+                <file>Parser.php</file>
+                <file>Table.php</file>
+                <file>Column.php</file>
+                <file>Designer.glade</file>
+            </dir>
+        </dir>
+    </filelist>
+   
+   
+   
+   
+  <changelog>
+    
+  
+  </changelog>
+</package>
