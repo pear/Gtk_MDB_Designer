@@ -114,6 +114,8 @@ class Gtk_MDB_Designer {
             array('menu_new',       'activate','showNewDialog'),
             array('menu_open',      'activate','showFileDialog'),
             array('menu_save',      'activate','callbackSave'),
+            array('menu_links_ini_write',      'activate','callbackWriteLinksIni'),
+            
             array('menu_quit',      'activate','callbackShutdown'),
             //array('menu_export',    'activate','callbackSaveSQL'),
             array('menu_zoomOut',   'activate','callbackShrink'),
@@ -417,6 +419,19 @@ class Gtk_MDB_Designer {
         gtk::main_quit();
         exit;
     }
+    /**
+    * call back for writing a dataobjects links.ini config file.
+    * 
+    * @access   public
+    */
+    
+    function callbackWriteLinksIni() 
+    {
+        $this->database->saveLinksIni();
+    }
+    
+    
+    
     /* these could probably be removed by connect_object('...',$this->glade->get_widget('dialog_new'),'hide') */
     
     function hideNewDialog() 

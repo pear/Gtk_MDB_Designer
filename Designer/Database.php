@@ -200,8 +200,53 @@ class Gtk_MDB_Designer_Database {
         fclose($fh);
         
         $this->dirty = false;
+    } 
+    /**
+    * relay to links to write the links.ini file.
+    * 
+    * @return   string - the links.ini file contents.
+    * @access   public
+    */
+    
+    
+    
+    function toLinksIni() {
+        $ret = '';
+        
+        foreach($this->tables as $k=>$v) {  
+            $ret .= "\n\n[{$v->name}]\n";
+            foreach($this->links as $kk=>$vv) {
+                $ret .= $vv->toLinksIni($v->name);
+            }
+        }
+        
+        return $ret;
     }
     
+     /**
+    * save to links.ini
+    * 
+    * @access   public
+    */
+    
+    
+    function saveLinksIni() {
+        $this->save(''); // save it first and get a filename? 
+         
+        if (!$this->file) {
+            return;
+        }
+        
+        $data = $this->toLinksIni();
+        
+        // ?? check?
+        //echo dirname(realpath($this->file)).'/'.$this->name.'.links.ini' . "\n";
+        $fh = fopen(dirname(realpath($this->file)).'/'.$this->name.'.links.ini','w');
+        fwrite($fh,$data);
+        fclose($fh);
+        
+        
+    }
     
     
     

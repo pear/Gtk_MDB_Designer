@@ -224,6 +224,20 @@ class Gtk_MDB_Designer_Interface_Link {
         $ret .= "      </link>\n";
         return $ret;
     }
+    /**
+    * output links.ini
+    * 
+    * @param   name of table = only output matching from links
+    * @return  string the ini data
+    */
+    function toLinksIni($tableName) {
+        if ($this->from->table->name != $tableName) {
+            return;
+        }
+        
+        return "{$this->from->name} = {$this->to->table->name}:{$this->to->name}\n";
+    }
+    
     
     
     
