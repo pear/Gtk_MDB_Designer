@@ -112,13 +112,38 @@ class Gtk_MDB_Designer_Database {
         $db = MDB::factory($dbtype);
         //echo "loaded factory?";
         //print_r($db);
+        
+        
+        
         $ret = '';
-        foreach($this->tables as $table) {
+        // attempt to handle inheritance.. = really needs recursive coding.
+        $done = array();
+        foreach($this->tables as $key => $table) {
+            if (isset($done[$key])) {
+                continue;
+            }
+            if ($table->inherits) {
+                $keyB = $this->findTableByName($table->inherits);
+                if (!isset($done[$keyB])) { 
+                    $ret .= $this->tables[$keyB]->toSQL($db);
+                }
+                $done[$keyB] = true;
+            }
             $ret .= $table->toSQL($db);
+            $done[$key]= true;
         }
         return $ret;
         
     }
+    
+    function findTableByName($name) {
+        foreach($this->tables as $k=>$table) {
+            if ($table->name == $name) {
+                return $k;
+            }
+        }  
+    }
+    
     /**
     * save to SQL (not mdb)..
     * 

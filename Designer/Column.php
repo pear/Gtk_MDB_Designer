@@ -92,7 +92,7 @@ class Gtk_MDB_Designer_Column {
                     break;
                 case 'pgsql':
                 case 'oci8': // no idea if this works..
-                    $r .= " DEFAULT nextval('{$this->table->name}_{$this->name}_sequence') ";
+                    $r .= " DEFAULT nextval('{$this->table->name}__{$this->name}_sequence') ";
             }
         }
         return $r;
@@ -121,9 +121,9 @@ class Gtk_MDB_Designer_Column {
             case 'fbsql':
                     return;
             case 'pgsql':
-                return "CREATE SEQUENCE {$this->table->name}_{$this->name}_sequence INCREMENT 1 START 1";
+                return "CREATE SEQUENCE {$this->table->name}__{$this->name}_sequence INCREMENT 1 START 1";
             case 'oci8':
-                return "CREATE SEQUENCE {$this->table->name}_{$this->name}_sequence START WITH 1 INCREMENT BY 1";
+                return "CREATE SEQUENCE {$this->table->name}__{$this->name}_sequence START WITH 1 INCREMENT BY 1";
         }
     }
     /**
@@ -152,7 +152,7 @@ class Gtk_MDB_Designer_Column {
                 return "ALTER TABLE {$this->table->name} ADD {$index} {$this->name}_index ({$this->name})";
             case 'pgsql':
             case 'oci8':
-                return "CREATE {$unique} INDEX {$this->table->name}_{$this->name}_index on {$this->table->name} ({$this->name})";
+                return "CREATE {$unique} INDEX {$this->table->name}__{$this->name}_index on {$this->table->name} ({$this->name})";
                 
         }
     }
