@@ -72,7 +72,7 @@ class Gtk_MDB_Designer_Interface_Database extends Gtk_MDB_Designer_Database {
     * 
     * @access   public
     */ 
-    function expand($x,$y) {
+    function grow($x,$y) {
         if ($x < $this->maxX && $y <$this->maxY) {
             return;
         }
@@ -94,6 +94,25 @@ class Gtk_MDB_Designer_Interface_Database extends Gtk_MDB_Designer_Database {
         foreach (array_keys($this->tables) as $name) {
            $this->tables[$name]->destroy();
            unset($this->tables[$name]);
+        }
+    }
+    /**
+    * expand  // show full details
+    * 
+    * @access   public
+    */ 
+    function expand() {
+        foreach (array_keys($this->tables) as $name) {
+           $this->tables[$name]->expand();
+        }
+    }   /**
+    * shrink // show names only
+    * 
+    * @access   public
+    */ 
+    function shrink() {
+        foreach (array_keys($this->tables) as $name) {
+           $this->tables[$name]->shrink();
         }
     }
    /**

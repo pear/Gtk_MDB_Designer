@@ -44,12 +44,21 @@ TODO:
 */
 
 require_once 'Gtk/MDB/Designer/Parser.php';
-require_once 'Gtk/MDB/Designer/Table.php';
-require_once 'Gtk/MDB/Designer/Column.php';
+require_once 'Gtk/MDB/Designer/Interface/Database.php';
 
  
 class Gtk_MDB_Designer {
-
+    
+    var $database; // the database object.. (Gtk_MDB_Designer_Interface_Database)
+    var $glade;    // the glade widget      (GtkGlade)
+    var $menu;     // the popup menu for the types (GtkMenu)
+    var $layout;   // the layout            (GtkLayout)
+    var $activeColumn; // the active column object for popup type selection
+    /**
+    * Constructor - not called automatically - so it could be wrapped into phpmole?
+    * 
+    * @access   public
+    */    
     function start($file) {
         $this->loadInterface();
         if ($file) {
@@ -59,8 +68,15 @@ class Gtk_MDB_Designer {
         }
         gtk::main();
     }
-    var $dirty = false;
-  
+    
+    
+    
+    
+   /**
+    * Main interface builder
+    * 
+    * @access   public
+    */   
     
     
     function loadInterface() {
@@ -88,18 +104,20 @@ class Gtk_MDB_Designer {
         }
         
         $connect = array(
-            array('menu_newTable',  'activate','newTable'),
+            array('menu_newTable',  'activate','callbackNewTable'),
             array('menu_new',       'activate','showNewDialog'),
             array('menu_open',      'activate','showFileDialog'),
-            array('menu_save',      'activate','saveReal'),
-            array('menu_quit',      'activate','shutdown'),
-            array('menu_export',    'activate','testExport'),
+            array('menu_save',      'activate','callbackSave'),
+            array('menu_quit',      'activate','callbackShutdown'),
+            array('menu_export',    'activate','callbackSaveSQL'),
+            array('menu_zoomOut',   'activate','callbackShrink'),
+            array('menu_zoomIn',    'activate','callbackExpand'),
             
             array('btn_doNew',      'pressed', 'newFile'),
             array('btn_hideNew',    'pressed', 'hideNewDialog'),
-            array('btn_fileOk',     'pressed', 'openFile'),
+            array('btn_fileOk',     'pressed', 'callbackOpenFile'),
             array('btn_fileCancel', 'pressed', 'hideFileDialog'),
-            array('btn_saveasOk',   'pressed', 'saveasFile'),
+            array('btn_saveasOk',   'pressed', 'callbackSaveAsFile'),
             array('btn_saveasCancel','pressed','hideSaveAsDialog'),
             
         );
@@ -109,298 +127,238 @@ class Gtk_MDB_Designer {
             $new = $this->glade->get_widget($data[0]);
             $new->connect($data[1],array(&$this,$data[2]));
         }
+        // todo a save as button...
         //$new = $this->glade->get_widget('menu_saveas');
         //$new->connect('activate',array(&$this,'showSaveAsDialog'));
         
-        // dialogs
+     
         
         
         $window = $this->glade->get_widget('window');
-        $window->connect('destroy', array(&$this,'shutdown'));
-        $window->connect('delete-event', array(&$this,'deleteEvent'));
+        $window->connect('destroy',      array(&$this,'callbackShutdown'));
+        $window->connect('delete-event', array(&$this,'callbackDeleteEvent'));
         
         
         
         
     }
-    var $maxY = 500;
-    var $maxX=10;
+   
+   
    
       
     
- 
+    
    
     
-    function callbackSetType($obj,$type) {
-        $this->activeColumn->callbackSetType($type);
-    }
+  
+    
+    
+    /* ----------------------------------------------------------------------------------*/
+    /*            Gtk Specific methods                                                   */
+    /* ----------------------------------------------------------------------------------*/
    
-    
-    
-    var $table;
-    var $name;
-    var $create = 1;
-     
-    var $tables = array();
-    function normalize() {
-        foreach($this->table as $table) {
-            $this->tables[$table->name] = $table;
-            $this->tables[$table->name]->normalize();
-        }
-        unset($this->table);
-    }
-    
-    
-    function toXml() {
-        $export = array('name','create');
-        $ret = "<?xml version=\"1.0\" encoding=\"ISO-8859-1\" ?>\n";
-        $ret .= "<database>\n";
-        foreach($export as $k) {
-            if (!isset($this->$k)) {
-                continue;
-            }
-            $ret .= "  <$k>{$this->$k}</$k>\n";
-        }
-        foreach($this->tables as $k=>$v) {
-            $ret .= $v->toXml();
-        }
-        $ret .= "</database>\n";
-        return $ret;
-    }
-    
-    
-     
-    function testExport() {
-        // test mdb creation..
-        require_once 'MDB.php';
-        $db = MDB::factory('pgsql');
-        //echo "loaded factory?";
-        //print_r($db);
-        $ret = '';
-        foreach($this->tables as $table) {
-            $ret .= $table->testExport($db);
-        }
-        echo $ret;
-        
-    }
-    
-    
-    /* ---------------------------------------------------------------------------------------------------- */
-    /*            Gtk Specific methods                                                                      */
-    /* ---------------------------------------------------------------------------------------------------- */
-    
-    
-    
-    
-      
-    function buildWidgets() {
-        $menu = $this->glade->get_widget('menubar');
-        $menu->set_sensitive(false);
-        $database = $this->glade->get_widget('databaseName');
-        $database->connect('changed',array(&$this,'callbackNameChanged'));
-        
-        $database->set_text($this->name);
-        $database->connect('leave-notify-event', array(&$this,'save'));
-        $this->setTitle();
-        foreach (array_keys($this->tables) as $name) {
-           $this->tables[$name]->buildWidgets($this,$this->maxX,20);
-           
-        }
-            
-        $menu->set_sensitive(true);
-        // create each row.
-       
-    }
-    
-    function callbackNameChanged($object) {
-        if ($object->get_text() == $this->name) {
-            return;
-        }
-        
-        $this->name = $object->get_text();
-        $this->setTitle();
-        $this->dirty = true;
-    }
-    
+   /**
+    * set the Window Title
+    * 
+    * @access   public
+    */    
     function setTitle() {
-        $window =  $this->glade->get_widget('window');
-        $window->set_title('Database Designer : '.$this->name. ' : ' . $this->file);
-    }   
-    
-    function expand($x,$y) {
-        if ($x < $this->maxX && $y <$this->maxY) {
+        if (!isset($this->database)) {
             return;
         }
-        if ($x > $this->maxX) {
-            $this->maxX = $x;
-        }
-        if ($y > $this->maxY) {
-            $this->maxY = $y;
-        }
-        $this->layout->set_size($this->maxX,$this->maxY);
-    }
-    
-    
-    
-    
-      
+        $window =  $this->glade->get_widget('window');
+        $window->set_title('Database Designer : '.$this->database->name. ' : ' . $this->database->file);
+    }   
+    /**
+    * open a file callback
+    * 
+    * @access   public
+    */   
     function loadFile($file) {
     
-        $this->file = $file;
+
+        $this->database->destroy();
+        // load a new parser.
         
-        foreach (array_keys($this->tables) as $name) {
-           $this->tables[$name]->destroy();
-           unset($this->tables[$name]);
-        }
-    
         $parser = &new Gtk_MDB_Designer_Parser;
         $parser->setInputFile($file);
        
         $parser->parse();
         $parser->classes = array( 
-            'database' => 'Gtk_MDB_Designer',
-            'database-table' => 'Gtk_MDB_Designer_Table',
+            'database' => 'Gtk_MDB_Designer_Interface_Database',
+            'database-table' => 'Gtk_MDB_Designer_Interface_Table',
             'database-table-declaration' => 'StdClass',
-            'database-table-declaration-field' => 'Gtk_MDB_Designer_Column',
-            'database-table-declaration-index' => 'Gtk_MDB_Designer_Column',
+            'database-table-declaration-field' => 'Gtk_MDB_Designer_Interface_Column',
+            'database-table-declaration-index' => 'Gtk_MDB_Designer_Interface_Column',
             'database-sequence' => 'StdClass'
         );
-          
-        $database = $parser->parseResult();
-        $this->maxX = 10;
-        $this->maxY = 400;
-        $this->name = $database->name;
-        $this->table = $database->table;
-        $this->normalize();
         
-        $this->buildWidgets();
+        $this->database = $parser->parseResult();
+        
+        $this->database->normalize();
+        
+        $this->database->file = $file;
+        $this->database->buildWidgets($this);
         
     
     }
-    var $file;
+    
+    /**
+    * create a new file.
+    * 
+    * @access   public
+    */   
     
     
-    
-    function save($istemp = false) {
-        //print_r($this->data);
-        // normalize changed data.
-        if (!$this->dirty) {
-            return;
-        }
-        if (!$this->file) {
-            return;
-        }
-        
-        $data = $this->toXml();
-        $fh = fopen($this->file.'.tmp','w');
-        fwrite($fh,$data);
-        fclose($fh);
-        
-        $this->dirty = false;
-    }
-    
-    function saveReal() {
-        if (!$this->file) {
-            //echo "NO FILE - show dialog?";
-            $this->showSaveAsDialog();
-            return;
-        }
-    
-        $data = $this->toXml();
-        $fh = fopen($this->file,'w');
-        fwrite($fh,$data);
-        fclose($fh);
-    }
+   
     
      
-    
-    
-    
-    
-    
-    
-    
-    function hideNewDialog() {
-        $dialog = $this->glade->get_widget('dialog_new');
-        $dialog->hide();
-    }
-    function showNewDialog() {
-        $dialog = $this->glade->get_widget('dialog_new');
-        $dialog->show();
-    }
-    function hideFileDialog() {
-        $dialog = $this->glade->get_widget('dialog_file');
-        $dialog->hide();
-    }
-    function showFileDialog() {
-        $dialog = $this->glade->get_widget('dialog_file');
-        $dialog->show();
-    }
-    
-    function showSaveAsDialog() {
-        $dialog = $this->glade->get_widget('dialog_saveas');
-        $dialog->show();
-    }
-    function hideSaveAsDialog() {
-        $dialog = $this->glade->get_widget('dialog_saveas');
-        $dialog->hide();
-    }
-       
     function newFile() {
         $this->hideNewDialog();
-        $this->save();
-        foreach (array_keys($this->tables) as $name) {
-        
-           $this->tables[$name]->destroy();
-           unset($this->tables[$name]);
+        if (isset($this->database)) {
+            $this->database->save('.tmp');
+            $this->database->destroy();
         }
-        $this->name = 'New Database';
-        $this->file = '';
-        $this->buildWidgets();
-        $this->maxX = 10;
-        $this->maxY = 400;
-        $this->layout->set_size($this->maxX,$this->maxY);
+        $this->database = new Gtk_MDB_Designer_Interface_Database;
+        $this->database->name = 'New Database';
+        $this->database->buildWidgets($this);
+    }
+   
+    /* --------------------------------------------------------------------------------- */
+    /*           Main Callbacks                                                          */
+    /* --------------------------------------------------------------------------------- */
+   
+    /**
+    * callback relay popup menu to curent callback.
+    * 
+    * @access   public
+    */
+
     
+    function callbackSetType($obj,$type) {
+        $this->activeColumn->callbackSetType($type);
     }
     
+    /**
+    * call back for open a file = called by pressing the ok button on the file dialog.
+    * 
+    * @access   public
+    */
     
-    function openFile() {
+    function callbackOpenFile() {
         $this->hideFileDialog();
-        $this->save();
+        $this->database->save('.tmp');
         $dialog = $this->glade->get_widget('dialog_file');
         $filename = $dialog->get_filename();
         $this->loadFile($filename);
-        
-        
     }
-    function saveasFile() {
+   /**
+    * call back for save  - from menu
+    * 
+    * @access   public
+    */
+    function callbackSave() {
+        $this->database->save('');        
+    }
+    /**
+    * call back for save  - from menu
+    * 
+    * @access   public
+    */
+    function callbackSaveSQL() {
+        $this->database->saveSQL();
+    }
+     /**
+    * call back for save as file = called by pressing the ok button on the file dialog.
+    * 
+    * @access   public
+    */
+    function callbackSaveAsFile() {
         $this->hideSaveAsDialog();
-        
         $dialog = $this->glade->get_widget('dialog_saveas');
-        $this->file = $dialog->get_filename();
+        $this->database->file = $dialog->get_filename();
         $this->setTitle();
-        $this->saveReal();
+        $this->database->save('');
     }
-    
-    function newTable() {
-       
-        $name = 'newtable'.(count($this->tables) +1);
-        $this->tables[$name] = new Gtk_MDB_Designer_Table;
-        $this->tables[$name]->name = $name;
-        $this->tables[$name]->buildWidgets($this,20,20);
-      
-    
+    /**
+    * call back for new table - from menu
+    * 
+    * @access   public
+    */
+    function callbackNewTable() {
+        $this->database->newTable();
     }
-    function deleteEvent()
+    /**
+    * call back for zoom in/expand
+    * 
+    * @access   public
+    */
+    function callbackExpand() {
+        $this->database->expand();
+    }
+    /**
+    * call back for zoom out/shrink
+    * 
+    * @access   public
+    */
+    function callbackShrink() {
+        $this->database->shrink();
+    }
+    /**
+    * call back for pressing close button on the window.
+    * 
+    * @access   public
+    */
+    function callbackDeleteEvent()
     {
         return false;
     }
-        
-    function shutdown()
+     /**
+    * call back for pressing close button (phase 2) on the window = and quit button.
+    * 
+    * @access   public
+    */   
+    function callbackShutdown()
     {
-        $this->save();
+        $this->datbase->save('.tmp');
         gtk::main_quit();
+        exit;
     }
+     
+    /* these could probably be removed by connect_object('...',$this->glade->get_widget('dialog_new'),'hide') */
+    
+    function hideNewDialog() 
+    {
+        $dialog = $this->glade->get_widget('dialog_new');
+        $dialog->hide();
+    }
+    function showNewDialog() 
+    {
+        $dialog = $this->glade->get_widget('dialog_new');
+        $dialog->show();
+    }
+    function hideFileDialog() 
+    {
+        $dialog = $this->glade->get_widget('dialog_file');
+        $dialog->hide();
+    }
+    function showFileDialog() 
+    {
+        $dialog = $this->glade->get_widget('dialog_file');
+        $dialog->show();
+    }
+    
+    function showSaveAsDialog() 
+    {
+        $dialog = $this->glade->get_widget('dialog_saveas');
+        $dialog->show();
+    }
+    function hideSaveAsDialog() 
+    {
+        $dialog = $this->glade->get_widget('dialog_saveas');
+        $dialog->hide();
+    }
+    
 
 }
 

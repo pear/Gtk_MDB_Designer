@@ -30,14 +30,32 @@ class Gtk_MDB_Designer_Interface_Table extends Gtk_MDB_Designer_Table {
     var $table;                         // the (GtkTable)
     var $frame;                         // the (GtkFrame) holder.
     var $height;                        // the height of an object
+    var $addRow;                        // the addrow button (GtkButton)
     
     var $extras = array('x','y','inherits');      // extra items to export 
     var $inherits;              // database that it inherits (postgres and a few other only)
     var $x;                     // x location
     var $y;                     // y location
-
+    var $scale = 1;
     
     var $row = 3;               // number of rows.
+    
+    /**
+    * overlay the normalized indexes into the table defs..
+    * 
+    * @access   public
+    */    
+    
+    function normalize() {
+        parent::normalize();
+        // map indexes into table..
+        foreach ($this->indexes as $k=>$v) {
+            $this->fields[$v->field_name]->isIndex = $k;
+            $this->fields[$v->field_name]->isUnique = @$v->unique;
+        }
+    }
+    
+    
     /**
     * build the widgets that make up a table view.. -  the dragable bit.
     * 
@@ -48,7 +66,7 @@ class Gtk_MDB_Designer_Interface_Table extends Gtk_MDB_Designer_Table {
     * @access   public
     */
     function buildWidgets(&$database,$x,$y) {
-           $this->database = &$database;
+         $this->database = &$database;
         // create each row.
        
         $this->frame   = &new GtkNotebook;
@@ -68,47 +86,48 @@ class Gtk_MDB_Designer_Interface_Table extends Gtk_MDB_Designer_Table {
         );
         
         
-        $label = &new GtkLabel('Table:');
-        $label->show();
-        $label->set_usize(50,20);
-        $this->table->attach( $label,
+        $this->largeWidgets['tableLabel'] = &new GtkLabel('Table:');
+        $this->largeWidgets['tableLabel']->show();
+        $this->largeWidgets['tableLabel']->set_usize(50,20);
+        $this->table->attach( $this->largeWidgets['tableLabel'],
                 1,2 ,
                 2,3,
                 GTK_FILL,   // xdir
                 GTK_SHRINK // ydir
         );
                 
-        $title = &new GtkEntry;
-        $title->set_text($this->name);
-        $title->set_usize(50,20);
-        $title->connect('changed', array(&$this,'callbackNameChanged'));
-        $title->connect('leave-notify-event', array(&$this->database,'save'));
+        $this->largeWidgets['tableEntry']= &new GtkEntry;
+        $this->largeWidgets['tableEntry']->set_text($this->name);
+        $this->largeWidgets['tableEntry']->set_usize(50,20);
+        $this->largeWidgets['tableEntry']->connect('changed', array(&$this,'callbackNameChanged'));
+        $this->largeWidgets['tableEntry']->connect('leave-notify-event', array(&$this->database,'save'));
 
-        $title->show();
-        $this->table->attach( $title,
+        $this->largeWidgets['tableEntry']->show();
+        $this->table->attach($this->largeWidgets['tableEntry'],
                 2,4 ,
                 2,3,
                 GTK_FILL ,  // xdir
                 GTK_SHRINK // ydir
         );
-        $label = &new GtkLabel('inherits');
-        $label->set_usize(50,20);
-        $label->show();
-        $this->table->attach( $label,
+        
+        $this->largeWidgets['inheritsLabel']= &new GtkLabel('inherits');
+        $this->largeWidgets['inheritsLabel']->set_usize(50,20);
+        $this->largeWidgets['inheritsLabel']->show();
+        $this->table->attach( $this->largeWidgets['inheritsLabel'],
                 4,7 ,
                 2,3,
                 GTK_SHRINK,   // xdir
                 GTK_SHRINK // ydir
         );
         
-        $title = &new GtkEntry;
-        $title->set_text($this->inherits);
-        $title->set_usize(50,20);
-        $title->connect('changed', array(&$this,'callbackExtendsChanged'));
-        $title->connect('leave-notify-event', array(&$this->database,'save'));
+        $this->largeWidgets['inheritsEntry']= &new GtkEntry;
+        $this->largeWidgets['inheritsEntry']->set_text($this->inherits);
+        $this->largeWidgets['inheritsEntry']->set_usize(50,20);
+        $this->largeWidgets['inheritsEntry']->connect('changed', array(&$this,'callbackExtendsChanged'));
+        $this->largeWidgets['inheritsEntry']->connect('leave-notify-event', array(&$this->database,'save'));
 
-        $title->show();
-        $this->table->attach( $title,
+        $this->largeWidgets['inheritsEntry']->show();
+        $this->table->attach( $this->largeWidgets['inheritsEntry'],
                 7,8 ,
                 2,3,
                 GTK_FILL,   // xdir
@@ -116,10 +135,10 @@ class Gtk_MDB_Designer_Interface_Table extends Gtk_MDB_Designer_Table {
         );
         
         
-        $delete = &new GtkButton('X');
-        $delete->connect('pressed', array(&$this,'callbackDeleteTable'));
-        $delete->show();
-        $this->table->attach( $delete,
+        $this->largeWidgets['deleteTable']= &new GtkButton('X');
+        $this->largeWidgets['deleteTable']->connect('pressed', array(&$this,'callbackDeleteTable'));
+        $this->largeWidgets['deleteTable']->show();
+        $this->table->attach( $this->largeWidgets['deleteTable'],
                 8,9 ,
                 2,3,
                 GTK_FILL,   // xdir
@@ -129,10 +148,10 @@ class Gtk_MDB_Designer_Interface_Table extends Gtk_MDB_Designer_Table {
         // header !!
         $row =3;
         foreach(array('Name','type','len','N','I','++','default') as $k=>$v) {
-            $child= &new GtkLabel($v);
+            $this->largeWidgets['header'.$k]= &new GtkLabel($v);
             //$child->set_usize(50,20);
-            $this->addCell($child,$k+1,$row);
-            $child->show();
+            $this->addCell($this->largeWidgets['header'.$k],$k+1,$row);
+            $this->largeWidgets['header'.$k]->show();
         }
         
         $this->rows = 4;
@@ -144,10 +163,10 @@ class Gtk_MDB_Designer_Interface_Table extends Gtk_MDB_Designer_Table {
         
         
         
-        $add = &new GtkButton('Add Row');
-        $add->connect('pressed', array(&$this,'callbackAddRow'));
-        $add->show();
-        $this->table->attach( $add,
+        $this->addRow = &new GtkButton('Add Row');
+        $this->addRow->connect('pressed', array(&$this,'callbackAddRow'));
+        $this->addRow->show();
+        $this->table->attach($this->addRow,
                 1,2 ,
                 $this->rows+5,$this->rows+6,
                 GTK_FILL,   // xdir
@@ -176,7 +195,7 @@ class Gtk_MDB_Designer_Interface_Table extends Gtk_MDB_Designer_Table {
         $maxY = $this->y + $this->height;
         $maxX = $this->x + 300;
         $this->database->layout->put($this->frame,$this->x,$this->y); 
-        $this->database->expand($maxX,$maxY);
+        $this->database->grow($maxX,$maxY);
         while (gtk::events_pending()) gtk::main_iteration();
         
         
@@ -228,7 +247,7 @@ class Gtk_MDB_Designer_Interface_Table extends Gtk_MDB_Designer_Table {
         switch($event->type) {
             case 4: // press
                 
-                $w->set_cursor($this->database->pointers[GDK_HAND2]);
+                $w->set_cursor($this->database->designer->pointers[GDK_HAND2]);
                 $this->tableMovePos         = $w->pointer;
                 $this->tableMoveFrameStart  = $this;
                 
@@ -237,12 +256,12 @@ class Gtk_MDB_Designer_Interface_Table extends Gtk_MDB_Designer_Table {
                 
                 break;
             case 7:
-                $w->set_cursor($this->database->pointers[GDK_ARROW]);
+                $w->set_cursor($this->database->designer->pointers[GDK_ARROW]);
                 $this->tableMovePos        = false;
                 $this->tableMoveFrameStart = false;
                 $this->database->dirty = true;
                 $this->database->save();
-                $this->database->expand($this->x + 300,$this->y+$this->height);
+                $this->database->grow($this->x + 300,$this->y+$this->height);
                 //$this->tableMoveFrame      = false;
                 break;
          
@@ -278,8 +297,8 @@ class Gtk_MDB_Designer_Interface_Table extends Gtk_MDB_Designer_Table {
          //print_r($event);
        
         
-        $this->x  = $this->tableMoveFrameStart->x + $xdiff;
-        $this->y  =  $this->tableMoveFrameStart->y + $ydiff;
+        $this->x  = (($this->tableMoveFrameStart->x * $this->scale)+ $xdiff) / $this->scale;
+        $this->y  = (($this->tableMoveFrameStart->y)+ $ydiff);
         if ($this->x < 0 ) { 
             $this->x = 0;
         }
@@ -288,10 +307,10 @@ class Gtk_MDB_Designer_Interface_Table extends Gtk_MDB_Designer_Table {
         }
         
         // grid :)
-        $this->x = floor($this->x/10) * 10;
+        $this->x = floor($this->x/(10 * $this->scale)) * (10 * $this->scale);
         $this->y = floor($this->y/10) * 10;
         
-        $this->database->layout->move($this->frame, $this->x, $this->y);
+        $this->database->layout->move($this->frame, $this->x * $this->scale, $this->y);
         
         while (gtk::events_pending()) gtk::main_iteration();
         
@@ -346,9 +365,63 @@ class Gtk_MDB_Designer_Interface_Table extends Gtk_MDB_Designer_Table {
                 GTK_SHRINK // ydir
         );
         $button->show();
-    
-    
+        
+       
     }
+    /**
+    * show a shrunk version.
+    *
+    * @access   public
+    */
+
+    function shrink() {
+        foreach (array_keys($this->largeWidgets) as $w) {
+            $this->largeWidgets[$w]->hide();
+        }
+        foreach(array_keys($this->fields) as $i=>$name) {
+            $this->fields[$name]->shrink();
+        }
+        $this->scale = 0.5;
+        //$this->title->hide();
+        //$this->table->remove($this->title);
+        //$this->table->attach( $this->title,
+        //        1,2,
+        //        1,2,
+        //        GTK_FILL,   // xdir
+        //        GTK_SHRINK // ydir
+        //);
+        $this->addRow->set_sensitive(false);
+        $this->database->layout->move($this->frame, $this->x * $this->scale, $this->y );
+        
+        
+    }
+    /**
+    * show a expanded version.
+    *
+    * @access   public
+    */
+    function expand() {
+        foreach (array_keys($this->largeWidgets) as $w) {
+            $this->largeWidgets[$w]->show();
+        }
+        foreach(array_keys($this->fields) as $i=>$name) {
+            $this->fields[$name]->expand();
+        }
+        $this->scale = 1;
+        //$this->title->hide();
+        //$this->table->remove($this->title);
+        //$this->table->attach( $this->title,
+        //        1,9,
+        //        1,2,
+        //        GTK_FILL,   // xdir
+        //        GTK_SHRINK // ydir
+        //);
+        //$this->frame->hide();
+        //$this->frame->show();
+        $this->addRow->set_sensitive(true);
+        $this->database->layout->move($this->frame, $this->x * $this->scale, $this->y );
+    }
+    
     
 }
 ?>

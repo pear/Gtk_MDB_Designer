@@ -40,7 +40,13 @@
                 <file>Parser.php</file>
                 <file>Table.php</file>
                 <file>Column.php</file>
+                <file>Database.php</file>
                 <file>Designer.glade</file>
+                <dir name="Interface" role="php">
+                  <file>Table.php</file>
+                  <file>Column.php</file>
+                  <file>Database.php</file>                  
+                </dir>
             </dir>
         </dir>
     </filelist>

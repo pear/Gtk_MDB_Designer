@@ -158,14 +158,14 @@ class Gtk_MDB_Designer_Interface_Column extends Gtk_MDB_Designer_Column {
       
     function callbackTypePressed($entry,$event) {
     
-     
+        
         $this->table->database->designer->activeColumn = &$this;
         
         $v = $entry->get_text();
         $w = $this->table->database->glade->get_widget('type_'.$v);
         
         $w->set_active(true);
-        $this->table->database->menu->popup(null, null, null, (int) $event->button, (int) $event->time);
+        $this->table->database->designer->menu->popup(null, null, null, (int) $event->button, (int) $event->time);
    
     
     }
@@ -261,6 +261,41 @@ class Gtk_MDB_Designer_Interface_Column extends Gtk_MDB_Designer_Column {
             $this->widgets[$w]->destroy();
         }
     }
+    
+   /**
+    * shrink view.
+    *
+    * @access   public
+    */
+    
+    function shrink() {
+        foreach (array_keys($this->widgets) as $w) {
+            if ($w == 'name') {
+                continue;
+            }
+            $this->widgets[$w]->hide();
+        }
+        $this->widgets['name']->set_sensitive(false);
+    
+    }
+     /**
+    * expand view.
+    *
+    * @access   public
+    */
+    
+    function expand() {
+        foreach (array_keys($this->widgets) as $w) {
+            if ($w == 'name') {
+                continue;
+            }
+            $this->widgets[$w]->show();
+        }
+        $this->setVisable();
+        $this->widgets['name']->set_sensitive(true);
+    }
+    
+    
     
 }
 ?>
