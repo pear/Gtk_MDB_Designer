@@ -2,19 +2,21 @@
 <!DOCTYPE package SYSTEM "../package.dtd">
 <package version="1.0">
   <name>Gtk_MDB_Designer</name>
-  <summary>An Gtk Database designer</summary>
+  <summary>An Gtk Database schema designer</summary>
   <description>
     A graphical database schema designer, based loosely around the MDB schema,
     it features
-      - table boxes which are draged around a window to layout your database
+      - table boxes which are dragged around a window to layout your database
       - add/delete tables
       - add delete columns
-      - support for NotNull, Indexes, Sequences and Unique Indexes, defaults
+      - support for NotNull, Indexes, Sequences , Unique Indexes and  defaults
       - works totally in non-connected mode (eg. no database or setting up required)
       
       - stores in MDB like xml file.
       - saves to any supported database SQL create tables files.
       - screenshots at http://devel.akbkhome.com/Gtk_MDB/
+      
+      
     Future enhancements: 
       - real MDB schema exports 
       - relationships = with lines etc.
@@ -22,6 +24,7 @@
     Note: the primary aim is to generate SQL files, (so that I can get my work done)
     however it is eventually planned to support MDB schema's fully.. - just a matter of time..
     
+    To use - just pear install and run gtkmdbdesigner
   
 </description>
   <license>PHP License</license>
@@ -37,12 +40,10 @@
   
   
     <release>
-      <version>0.1</version>
-      <date>2003-03-23</date>
+      <version>0.2</version>
+      <date>2003-03-24</date>
       <notes>
-        - First release version
-        - Available for testing.
-          
+        - Fix sql generation
         
       </notes>
       <state>beta</state>
@@ -83,12 +84,27 @@
         
         
     </filelist>
-   
+   <deps>
+      <dep type="php" rel="ge" version="4.3"/>
+      <dep type="pkg" rel="ge" version="1.1.1">MDB</dep>
+      <dep type="pkg" rel="ge" version="1.0.1">XML_Parser</dep>
+    </deps>
    
    
    
   <changelog>
     
+    <release>
+      <version>0.1</version>
+      <date>2003-03-23</date>
+      <notes>
+        - First release version
+        - Available for testing.
+          Requires MDB from CVS (eg. > 1.1.1) for sql export to work.
+        
+      </notes>
+      <state>beta</state>
+    </release>
   
   </changelog>
 </package>

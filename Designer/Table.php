@@ -111,12 +111,15 @@ class Gtk_MDB_Designer_Table {
         }
     
         $ret .= "\nCREATE TABLE {$this->name} (\n";
+        $begin = '    ';
         foreach($this->fields as $field) {
             if ($row =$field->toSQL($db)) {
-                $ret .= "    ". $row. ",\n";
+                $ret .= $begin . $row;
+                $begin = ",\n    ";
             }
+            
         }
-        $ret .= ")";
+        $ret .= "\n)";
         if (strlen($this->inherits)) {
             $ret.= "\nINHERITS ({$this->inherits})";
         }
