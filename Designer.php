@@ -187,6 +187,7 @@ class Gtk_MDB_Designer {
         $parser->classes = array( 
             'database' => 'Gtk_MDB_Designer_Interface_Database',
             'database-table' => 'Gtk_MDB_Designer_Interface_Table',
+            'database-table-link' => 'Gtk_MDB_Designer_Interface_Link',
             'database-table-declaration' => 'StdClass',
             'database-table-declaration-field' => 'Gtk_MDB_Designer_Interface_Column',
             'database-table-declaration-index' => 'Gtk_MDB_Designer_Interface_Column',

@@ -197,5 +197,34 @@ class Gtk_MDB_Designer_Interface_Link {
         //print_r(array($x1,$y1,$x2,$y2));
         return new GdkRectangle($x1,$y1,$x2,$y2);
     }
+    
+      /**
+    * output XML
+    * 
+    * @access   public
+    * @return  string the XML
+    */
+    
+    
+    function toXml($array=array()) {
+        if ($this->deleted) {
+            return;
+        }
+        
+        $export = array(
+            'fromtable' => $this->from->table->name,
+            'fromrow'   => $this->from->name,
+            'totable'   => $this->to->table->name,
+            'torow'     => $this->to->name,
+        );
+        $ret  = "      <link>\n";
+        foreach($export as $k=>$v) {
+            $ret .= "        <$k>{$v}</$k>\n";
+        }
+        $ret .= "      </link>\n";
+        return $ret;
+    }
+    
+    
 }
 ?>

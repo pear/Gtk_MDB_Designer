@@ -70,6 +70,12 @@ class Gtk_MDB_Designer_Database {
         foreach($this->tables as $k=>$v) {
             $ret .= $v->toXml();
         }
+        foreach($this->links as $k=>$v) {
+            $ret .= $v->toXml();
+        }
+        
+        
+        
         $ret .= "</database>\n";
         return $ret;
     }
