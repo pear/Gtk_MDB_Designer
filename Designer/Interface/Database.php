@@ -34,6 +34,12 @@ class Gtk_MDB_Designer_Interface_Database extends Gtk_MDB_Designer_Database {
     var $maxY = 500;    // maximum size of layout widget 
     var $maxX = 10;       //
     
+    var $loading = false;
+    var $linkDeleteMenu = false; // the popup menu to delete links
+    var $newLink = array(); // set by drag drop stuff.0 - from 1 - to.
+    
+    var $links = array();   // array of link objects. Gtk_MDB_Designer_Interface_Links
+        
     /**
     * build the widgets that make up a database view.. - add the connections
     * 
@@ -42,6 +48,7 @@ class Gtk_MDB_Designer_Interface_Database extends Gtk_MDB_Designer_Database {
     */
     
     function buildWidgets(&$designer) {
+        $this->loading = true;
         $this->designer = &$designer;
         $this->layout   = &$designer->layout;
         $this->glade    = &$designer->glade;
@@ -69,6 +76,7 @@ class Gtk_MDB_Designer_Interface_Database extends Gtk_MDB_Designer_Database {
         $menu->set_sensitive(true);
         // create each row.
         $this->designer->loadDrawingArea();
+        $this->loading = false;
     }
     
     
@@ -107,12 +115,13 @@ class Gtk_MDB_Designer_Interface_Database extends Gtk_MDB_Designer_Database {
                     $this->designer->drawingArea->window,
                     $maxX ,$maxY,
                     -1);
-                    
+                  
             gdk::draw_rectangle($this->designer->pixmap, 
                 $this->designer->drawingArea->style->white_gc,
                 true, 0, 0,
                 $maxX ,$maxY);
                 
+             $this->redrawLinks();     
             // at this point you have to hook in the call to redraw the connectors.
             
             
@@ -143,18 +152,24 @@ class Gtk_MDB_Designer_Interface_Database extends Gtk_MDB_Designer_Database {
     * @access   public
     */ 
     function expand() {
+        $this->hideLinks();
         foreach (array_keys($this->tables) as $name) {
            $this->tables[$name]->expand();
         }
+        while(gtk::events_pending()) gtk::main_iteration();
+        $this->redrawLinks();
     }   /**
     * shrink // show names only
     * 
     * @access   public
     */ 
     function shrink() {
+        $this->hideLinks();
         foreach (array_keys($this->tables) as $name) {
            $this->tables[$name]->shrink();
         }
+        while(gtk::events_pending()) gtk::main_iteration();
+        $this->redrawLinks();
     }
    /**
     * create a new table
@@ -232,9 +247,33 @@ class Gtk_MDB_Designer_Interface_Database extends Gtk_MDB_Designer_Database {
         $widget->set_style($newstyle);
     }
     
-    var $newLink = array(); // set by drag drop stuff.0 - from 1 - to.
     
-    var $links = array();   // array of link objects. Gtk_MDB_Designer_Interface_Links
+    var $scale = 0.7;
+    
+    function scaleFont(&$widget ,$weight='') {
+        $size = ((int) (100  * $this->scale));
+        
+        if ($weight == '') {
+            $fontname = "-*-fixed-medium-*-*-*-*-{$size}-*-*-*-*-*-*";
+        } else {
+            if ($size < 80) { 
+                $size = 80;
+            }
+            $fontname = "-*-helvetica-{$weight}-r-normal-*-*-{$size}-*-*-p-*-iso8859-1";
+        }
+        //echo "$fontname\n";
+        $font = gdk::font_load($fontname);
+        $oldstyle = $widget->get_style();
+        $newstyle = $oldstyle->copy();
+        $newstyle->font = $font;
+        $widget->set_style($newstyle);
+    }
+   
+    
+    
+    
+    
+    
      /**
     * create a new link - done by drag/drop.. action.
     *
@@ -251,11 +290,34 @@ class Gtk_MDB_Designer_Interface_Database extends Gtk_MDB_Designer_Database {
             }
         }
         $this->links[] = new  Gtk_MDB_Designer_Interface_Link;
+        $this->links[count($this->links)-1]->id = count($this->links)-1;
         $this->links[count($this->links)-1]->from = &$this->newLink[0];
         $this->links[count($this->links)-1]->to = &$this->newLink[1];
-        $this->links[count($this->links)-1]->drawLink();
+        $this->links[count($this->links)-1]->addLink();
     }
+     
+    
+    
         
-      
+    function put(&$widget,$x,$y) {
+        $this->layout->put($widget,$x,  $y);
+    }
+    function move(&$widget,$x,$y) {
+        $this->layout->move($widget,$x , $y);
+    }
+    function hideLinks() {
+        foreach(array_keys($this->links) as $i) {
+            $this->links[$i]->hide();
+        }
+    }
+    
+    
+    function redrawLinks() {
+        foreach(array_keys($this->links) as $i) {
+            $this->links[$i]->show();
+        }
+    }
+    
+    
 }
 ?>

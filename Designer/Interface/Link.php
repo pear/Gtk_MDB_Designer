@@ -26,20 +26,29 @@ $GLOBALS['_Gtk_MDB_Designer_Interface_Link'] = array();
 
 class Gtk_MDB_Designer_Interface_Link {
     
-    var $from; // Gtk_MDB_Designer_Interface_Column
-    var $to;   // Gtk_MDB_Designer_Interface_Column
-    
+    var $from;              // Gtk_MDB_Designer_Interface_Column
+    var $to;                // Gtk_MDB_Designer_Interface_Column
+    var $id;                // position in database->links[$id] array
+    var $deleted = false;   // has it been deleted.
       
    
     
     
     
     function matches(&$array) {
+        if ($this->deleted) {
+            return;
+        }
+        
         if ($this->from->table->name != $array[0]->table->name) {
             return;
         }
         if ($this->to->table->name != $array[1]->table->name) {
             return;
+        }
+        // same table?
+        if ($array[0]->table->name == $array[1]->table->name) {
+            return true;
         }
         if ($this->from->name != $array[0]->name) {
             return;
@@ -47,24 +56,27 @@ class Gtk_MDB_Designer_Interface_Link {
         if ($this->to->name != $array[1]->name) {
             return;
         }
+        
+        
         return true;
     }
     var $fromPos;
     var $toPos;
     
-    function drawLink() {
+    function addLink() {
         // ask first for startpos
         // make up firstpos
         //require_once 'Gtk/VarDump.php';new Gtk_VarDump($this);
         $this->setGC();
         
-        $base = array($this->from->table->x,$this->from->table->y);
-        $toPos = $this->to->getStartPos($base);
-        $this->fromPos = $this->from->getStartPos($toPos);
-        $this->toPos = $this->to->getStartPos($this->fromPos);
-        $this->drawDragLine($GLOBALS['_Gtk_MDB_Designer_Interface_Link']['gc']);
+       
       
-    
+        $this->from->table->links[] = &$this;
+        $this->to->table->links[] = &$this;
+        $this->from->links[] = &$this;
+        $this->to->links[] = &$this;
+        
+        $this->show();
     
     }
     
@@ -84,20 +96,55 @@ class Gtk_MDB_Designer_Interface_Link {
         $GLOBALS['_Gtk_MDB_Designer_Interface_Link']['gc'] = $w->new_gc();
         
         $gc = &$GLOBALS['_Gtk_MDB_Designer_Interface_Link']['gc'];
-        $gc->background =  $cmap->alloc("#000000");
-        $gc->foreground =  $cmap->alloc("#FF0000");
-        //$gc->function   =  GDK_INVERT;
+        $gc->background =  $cmap->alloc("#FFFFFF");
+        $gc->foreground =  $cmap->alloc("#FF00FF");
+        $gc->function   =  GDK_XOR;
         $gc->line_width  =  3;
         $gc->line_style = GDK_LINE_ON_OFF_DASH;
         $gc->cap_style = GDK_CAP_ROUND;
          
         
     }
-        
+    
+    
+    function hide() {
+        if ($this->deleted) {
+            return;
+        }
+            
+        $this->drawDragLine();
+        $this->to->widgets['button'.$this->toButton]->hide();
+    }
+    
+    
+    function show() {
+        if ($this->deleted) {
+            return;
+        }
+        $this->drawDragLine();
+        $this->to->showLinkButtons();
+    }
+    
+    function remove() {
+        $this->hide();
+        $this->deleted = true;
+        $this->to->showLinkButtons();
+    }
     
     // similar to the one in column.
     
-    function drawDragLine(&$gc) {
+    function drawDragLine() {
+        if ($this->deleted) {
+            return;
+        }
+        //echo "DRAWDRAGLINE 1\n";
+    
+        $base = array($this->from->table->x,$this->from->table->y);
+        $toPos = $this->to->getStartPos($base);
+        $this->fromPos = $this->from->getStartPos($toPos);
+        $this->toPos = $this->to->getStartPos($this->fromPos);
+        
+        $gc = &$GLOBALS['_Gtk_MDB_Designer_Interface_Link']['gc'];
         list($x1,$y1) = $this->fromPos;
         list($x2,$y2) = $this->toPos;
         $database = &$this->from->table->database;
@@ -121,31 +168,20 @@ class Gtk_MDB_Designer_Interface_Link {
                $x1 + $xAdj->value, $y1 + $yAdj->value,
                $x2 + $xAdj->value,  $y2 + $yAdj->value )
         );
-       
-        $x = $x2 + $xAdj->value;
-        $y = $y2 + $yAdj->value; 
-         
-        $xf = -5;
-        $s = "<";
-        if ($x2 < $this->to->table->x) {
-            $xf = -5;
-            $s = ">";
+        
+        if ($x2 < ($this->to->table->x - $xAdj->value) ) {
+           $this->toButton = 'L';
+        } else {
+           $this->toButton = 'R';
         }
-        
-        // this needs to be tagged onto the column so 
-        // that multiple links can be associated with one column.
-        
-        $button = &new GtkButton($s);
-        $button->show();
-        $layout->put($button,$x+$xf,$y-10);
-        
-        
-        
-        
-        
-        
-     
+        //echo "DRAWDRAGLINE 2\n";
+        $this->to->addLinkButton($this->toButton);
+        //echo "DRAWDRAGLINE 3\n";
     }    
+    
+    
+    
+    
     function &makeRectangle($x1,$y1,$x2,$y2) {
         //print_r(array($x1,$y1,$x2,$y2));
         if ($x2 < $x1) {

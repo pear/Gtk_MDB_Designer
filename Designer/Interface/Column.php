@@ -31,7 +31,8 @@ class Gtk_MDB_Designer_Interface_Column extends Gtk_MDB_Designer_Column {
     var $widgets = array(); // associative array of the widgets 
     var $table;             // the parent  Gtk_MDB_Designer_Interface_Column object
     var $extra = array('isIndex','sequence'); // extra stuff to put in xml file.
-    var $unique;        
+    var $unique;       
+    var $links = array();   // array of links
    /**
     * build the widgets that make up a column (eg. 1 row)
     * 
@@ -47,14 +48,14 @@ class Gtk_MDB_Designer_Interface_Column extends Gtk_MDB_Designer_Column {
         $widgets = array(
             // format:
             //name                       display,   width,   pos , span , 
-            'name'     =>  array(null,       80,     1 , 1),
-            'type'      => array(null,      60,     2 , 1),
-            'length'   =>  array(null,      20,      3 , 1),
-            'notnull'   => array('N',       20,     4 , 1),
-            'isIndex'   => array('I',       20,     5 , 1),
-            'sequence'  => array('++',       20,     6 , 1),
-            'unique'   =>  array('U',      20,     7 , 1),
-            'default'   => array(null,      40,     8 , 2)
+            'name'     =>  array(null,      1 , 1),
+            'type'      => array(null,      2 , 1),
+            'length'   =>  array(null,      3 , 1),
+            'notnull'   => array('n',       4 , 1),
+            'isIndex'   => array('I',       5 , 1),
+            'sequence'  => array('+',      6 , 1),
+            'unique'   =>  array('u',       7 , 1),
+            'default'   => array(null,      8 , 2)
             
         );
     
@@ -112,10 +113,12 @@ class Gtk_MDB_Designer_Interface_Column extends Gtk_MDB_Designer_Column {
                 
             }  
             
-            $this->widgets[$string]->set_usize($config[1],20);
-            $this->table->addCell($this->widgets[$string],$config[2],$row, $config[3], GTK_EXPAND|GTK_FILL);
+             
+            $this->table->addCell($this->widgets[$string],$config[1],$row, $config[2], GTK_EXPAND|GTK_FILL);
             $this->widgets[$string]->show();
         }
+        $this->setSizes();
+        
         $this->deleteMenuItem = &new GtkMenuItem($this->name);
         $this->deleteMenuItem->show();
         $this->deleteMenuItem->connect('activate',array(&$this,'callbackRowDelete'));
@@ -125,8 +128,44 @@ class Gtk_MDB_Designer_Interface_Column extends Gtk_MDB_Designer_Column {
       
             
     }
+    
+    
+    function setSizes() {
+        $sizes = array(
+            // format:
+            //name                       display,   width,   pos , span , 
+            'name'      =>     80,   
+            'type'      =>     60,    
+            'length'    =>     30,    
+            'notnull'   =>     16,    
+            'isIndex'   =>     16,    
+            'sequence'  =>     20,   
+            'unique'    =>     16,     
+            'default'   =>     20,
+            'buttonL'   =>     20,
+            'buttonR'   =>     20,
+            'buttonChildL'   =>     20,
+            'buttonChildR'   =>     20,
+        );
+        foreach ($sizes as $w=>$v) {
+            if (!isset($this->widgets[$w])) {
+                continue;
+            }
+            $this->widgets[$w]->set_usize((int) ($v * $this->table->database->scale),(int) (20 * $this->table->database->scale));
+            $this->table->database->scaleFont($this->widgets[$w]);
+        }
+    
+    
+    }
+    
+    
+    
     function callbackDropAsk($widget, $context, $selection_data, $info, $time)
     {
+        
+        if ($this->table->database->loading) {
+            return;
+        }
         //print_r(func_get_args());
         //  $dnd_string = "Perl is the only language that looks\nthe same before and after RSA encryption";
         
@@ -143,6 +182,9 @@ class Gtk_MDB_Designer_Interface_Column extends Gtk_MDB_Designer_Column {
     
     function callbackDropReceived($widget, $context, $selection_data, $info, $time)
     {
+        if ($this->table->database->loading) {
+            return;
+        }
         //echo "END TO {$this->table->name}:{$this->name}\n";
         $this->table->database->newLink[1] = &$this;
         $this->table->database->createLink();
@@ -377,25 +419,31 @@ class Gtk_MDB_Designer_Interface_Column extends Gtk_MDB_Designer_Column {
     
     function getStartPos($endPos=false) {
         $ret = array();
+        
+       // $scale = $this->table->database->scale * 10;
+        
         $ww2 = $this->widgets['name']->window;
         
-        $yAdj = $this->table->database->layout->get_vadjustment();
-        $ret[1] = $ww2->y + $this->table->y + 10 - $yAdj->value;
+        // sort out the y value.
+        $yAdj = $this->table->database->layout->get_vadjustment();       
+        $ret[1] = $ww2->y + $this->table->y - $yAdj->value + ($ww2->height/2);
+        
+        
         //print_r(array(,$this->startPos[1]));
         $xAdj = $this->table->database->layout->get_hadjustment();
         $ww = $this->table->frame->window;
         //print_r(array($this->table->x,$this->table->y));
         //print_r(array($ww->width,$ww->height));
         if (!$endPos) {
-            $ret[0] = ($this->table->x * $this->table->scale)- 3 - $xAdj->value;
+            $ret[0] = $this->table->x - 3 - $xAdj->value;
             //$this->startPos[1] = $this->table->x - 3;
             return $ret;
         }
-        if (($endPos[0] + $xAdj->value) > (($this->table->x  * $this->table->scale)+ ($ww->width/2))) {
+        if (($endPos[0] + $xAdj->value) > ($this->table->x  + ($ww->width/2))) {
             // right hand side..
-            $ret[0] = ($this->table->x  * $this->table->scale) +$ww->width + 3 - $xAdj->value;
+            $ret[0] = $this->table->x  + $ww->width + 3 - $xAdj->value;
         } else {
-            $ret[0] = ($this->table->x  * $this->table->scale) - 3 - $xAdj->value;
+            $ret[0] = $this->table->x - 3 - $xAdj->value;
         }
         return $ret;
         
@@ -448,9 +496,6 @@ class Gtk_MDB_Designer_Interface_Column extends Gtk_MDB_Designer_Column {
                $x1 + $xAdj->value, $y1 + $yAdj->value,
             $x2 + $xAdj->value,  $y2 + $yAdj->value )
         );
-    
-    
-    
     }
     
     
@@ -497,6 +542,9 @@ class Gtk_MDB_Designer_Interface_Column extends Gtk_MDB_Designer_Column {
             if ($w == 'name') {
                 continue;
             }
+            if (substr($w,0,3) == 'but') {
+                continue;
+            }
             $this->widgets[$w]->hide();
         }
         $this->widgets['name']->set_editable(false);
@@ -511,6 +559,9 @@ class Gtk_MDB_Designer_Interface_Column extends Gtk_MDB_Designer_Column {
     function expand() {
         foreach (array_keys($this->widgets) as $w) {
             if ($w == 'name') {
+                continue;
+            }
+            if (substr($w,0,3) == 'but') {
                 continue;
             }
             $this->widgets[$w]->show();
@@ -548,6 +599,107 @@ class Gtk_MDB_Designer_Interface_Column extends Gtk_MDB_Designer_Column {
     function toXml($array = array()) {
         return parent::toXml(array_merge($array, array('isIndex','sequence','unique')));
     }
+    
+    
+    
+    
+    
+    function addLinkButton($side) {
+           
+        if (isset($this->widgets['button'.$side])) {
+            $this->moveLinkButtonPos($side) ;
+            return;
+        }
+        //echo "REAL ADD\n";
+        $s = ($side == 'L') ? '>' : '<';
+        
+        
+        // this needs to be tagged onto the column so 
+        // that multiple links can be associated with one column.
+        
+        $this->widgets['button'.$side] = &new GtkButton($s);
+        $this->widgets['buttonChild'.$side]= $this->widgets['button'.$side]->child;
+
+        $this->widgets['button'.$side]->connect('button-press-event',array(&$this,'callbackDisplayLinkMenu'));
+
+        $this->table->database->setWidgetStyle($this->widgets['button'.$side],'#000000','#33FF33');
+        $this->table->database->setWidgetStyle($this->widgets['buttonChild'.$side],'#000000','#33FF33');
+        $this->setSizes();
+        //$this->widgets['button'.$side]->show();
+        
+        
+        list($x,$y) = $this->getLinkButtonPos($side);
+        
+        $this->table->database->put($this->widgets['button'.$side],$x,$y);
+    }
+    
+    function getLinkButtonPos($side) {
+        //echo "GET POS\n";
+        $layout = &$this->table->database->layout;
+        $xAdj = $layout->get_hadjustment();
+        $yAdj = $layout->get_vadjustment();
+        if ($side == 'L') {
+            list($x,$y) = $this->getStartPos(array(-100,0)); 
+            $xf = -10 * $this->table->database->scale; 
+        } else {
+            list($x,$y) = $this->getStartPos(array(1000000 ,0)); 
+            $xf = -10 * $this->table->database->scale; 
+        }
+        
+        $x += $xAdj->value;
+        $y += $yAdj->value;
+        $y -=  (10 * $this->table->database->scale); 
+    
+        $x += $xf;
+        //echo "DONE GETPOS\n";
+        return array($x,$y);
+    }
+    
+    function moveLinkButtonPos($side) {
+        //echo "MOVE BTN\n";
+        list($x,$y) = $this->getLinkButtonPos($side);
+        
+        $this->table->database->move($this->widgets['button'.$side],$x,$y);
+    }
+    
+    
+    function callbackDisplayLinkMenu($entry,$event) {
+        
+        if ($this->table->database->linkDeleteMenu) {
+            $this->table->database->linkDeleteMenu->destroy();
+        }
+        $this->table->database->linkDeleteMenu = &new GtkMenu;
+        $menu = &$this->table->database->linkDeleteMenu;
+        $menuItem = &new GtkMenuItem();
+        $menuItem->show();
+        $menu->add($menuItem);
+        foreach(array_keys($this->links) as $i) {
+            if ($this->links[$i]->deleted) {
+                continue;
+            }
+            if ($this->links[$i]->to->table->name != $this->table->name) {
+                continue;
+            }
+            $from = &$this->links[$i]->from;
+            $menuItem = &new GtkMenuItem("Delete Link from {$from->table->name}.{$from->name}");
+            $menuItem->connect('activate',array(&$this->links[$i], 'remove'));
+            $menuItem->show();
+            $menu->add($menuItem);
+        }
+        $menu->show();
+        $menu->popup(null, null, null, (int) $event->button, (int) $event->time);
+    }
+    
+    function showLinkButtons() {
+        foreach(array_keys($this->links) as $i) {
+            if ($this->links[$i]->deleted) {
+                continue;
+            }
+            $this->widgets['button'.$this->links[$i]->toButton]->show();
+        }
+    }
+    
+    
     
 }
 ?>
