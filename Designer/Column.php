@@ -93,6 +93,11 @@ class Gtk_MDB_Designer_Column {
         }
         
         $r = MDB_Manager_Common::getFieldDeclaration(&$db, $this->name, $this->toMdb());
+        // no idea how cross database this is...
+        if ($this->unique) {
+            $r .= ' UNIQUE ';
+        }
+        
         
        // print_r($db);
         if ($this->sequence) {
@@ -100,7 +105,7 @@ class Gtk_MDB_Designer_Column {
             switch ($db->phptype) {
                 case 'mysql':
                 case 'fbsql':
-                    $r .= " AUTOINCREMENT ";
+                    $r .= " AUTO INCREMENT ";
                     break;
                 case 'pgsql':
                 case 'oci8': // no idea if this works..
