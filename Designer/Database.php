@@ -106,6 +106,10 @@ class Gtk_MDB_Designer_Database {
         fclose($fh);
         
         $this->dirty = false;
+        
+        if ($extension == '') {
+            $this->updateDatabase();
+        }
     }
     /**
     * translate the object to a create tables etc. SQL
@@ -248,7 +252,17 @@ class Gtk_MDB_Designer_Database {
         
     }
     
-    
+    function updateDatabase() {
+        return;
+        // this stuff is very experimental..
+        // connect to database...
+        require_once 'MDB.php';
+        $db = MDB::connect('pgsql://alan:@localhost/hebe');
+        foreach(array_keys($this->tables) as $k) {
+            $this->tables[$k]->updateDatabase($db);
+        }
+          
+    }
     
 }
 ?>

@@ -24,6 +24,8 @@
 
 
 class Gtk_MDB_Designer_Table {
+    var $originalName='';          // name prior to change..
+    var $dirty = false;
     var $name;                  // name of the database
  
     var $fields = array();      // fields (array of columns)
@@ -34,6 +36,7 @@ class Gtk_MDB_Designer_Table {
     
  
     
+    
     var $deleted = false; // has it been deleted
    /**
     * convert declaration contents into field and index.
@@ -43,11 +46,13 @@ class Gtk_MDB_Designer_Table {
     
     
     function normalize() {
+        
         //print_r($this->declaration[0]->field);
         foreach($this->declaration as $declaration) {
             if (isset($declaration->field)) {
                 foreach ($declaration->field as $field) {
                     $this->fields[$field->name] = $field;
+                    $this->fields[$field->name]->originalName = $field->name;
                 }
                 continue;
             }
@@ -136,9 +141,112 @@ class Gtk_MDB_Designer_Table {
         return $ret;
     }
     
+    function updateDatabase(&$db) {
     
+    
+        // NOTE MDB SOULD HANDLE THIS OK - it it emits a not supported error - then
+        // fall back to create a new table.. copy the data and rename it..
+    
+        
+        if ($this->originalName == '') {
+            echo "CREATE TABLE {$this->name}\n";
+            echo $this->toSQL($db);
+            $this->originalName = $this->name;
+            foreach(array_keys($this->fields) as $i) {
+                $this->fields[$i]->dirty = false;
+            }
+            return;
+        }
+        
+        /* create or alter sequences */
+        
+        //foreach($this->fields as $field) {
+        //     if ($r = $field->toSequenceSQL($db)) {
+        //        $ret .= $r . ";\n";
+        //   }
+        //}
+    
+        /* create or alter sequences */
+        $changes = array();
+        if ($this->originalName != $this->name) {
+            
+            echo "CHANGE TABLENAME {$this->originalName} to {$this->name}\n";
+          
+            $changes['name'] = $this->name;
+        }
+        
+        /* add or alter columns */
+    
+        foreach(array_keys($this->fields) as $i) {
+            // removed (never created)
+            if ($this->fields[$i]->deleted && $this->fields[$i]->originalName == '') {
+                continue;
+            }
+            // removed (never created)
+            if ($this->fields[$i]->deleted && $this->fields[$i]->originalName != '') {
+                $changes['RemovedFields'][$this->fields[$i]->name] = array();
+                $this->fields[$i]->originalName = $this->fields[$i]->name;
+                continue;
+            }
+            
+            // added..
+            if ($this->fields[$i]->originalName == '') {
+                
+                
+                $changes['AddedFields'][$this->fields[$i]->name] = array(
+                    'Declaration' => $this->fields[$i]->toSQL($db)
+                );
+                $this->fields[$i]->originalName = $this->fields[$i]->name;
+                continue;
+            }
+            // name changed. 
+            if (!$this->fields[$i]->dirty && ($this->fields[$i]->originalName  != $this->fields[$i]->name)) {
+                $changes['RenamedFields'][$this->fields[$i]->originalName] = array(
+                    'name' => $this->fields[$i]->name,
+                    'Declaration' => $this->fields[$i]->toSQL($db)
+                );
+                $this->fields[$i]->originalName = $this->fields[$i]->name;
+                continue;
+            }
+            // modified
+            if ($this->fields[$i]->dirty) {
+                $changes['ChangedFields'][$this->fields[$i]->originalName] = array(
+                    'Declaration' => $this->fields[$i]->toSQL($db)
+                );
+                $this->fields[$i]->originalName = $this->fields[$i]->name;
+                continue;
+            }
+        }
+        $db->loadManager();
+        print_r($changes);
+        $res = $db->manager->alterTable($db,$this->originalName, $changes,1);
+        if (MDB::isError($res)) {
+            require_once 'Gtk/MDB/Designer/MessageBox.php';
+            $dialog = new Gtk_MDB_Designer_MessageBox(array(
+                    'message' => $res->getMessage(),
+                    'cancel' => false
+            ));
+            $dialog->display();
+            return;
+        }
+                
+            
+        
+        
+        
+        
+        // if recreate -  does the database support row deletion? if not do the table copy trick..
+        
+        
+        // check for changes in rows..
+        
+           $this->originalName = $this->name;
+        
+        /* add or alter indexes */
+        
+        //....
      
-    
+    }
   
 }
 ?>

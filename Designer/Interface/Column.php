@@ -207,6 +207,15 @@ class Gtk_MDB_Designer_Interface_Column extends Gtk_MDB_Designer_Column {
         //echo get_class($object);
         switch ($field) {
             case 'name':
+                // name does not set dirty flag - its a simple rename..
+                $value = $object->get_text();
+                if (@$this->$field == $value) {
+                    return;
+                }
+                $this->$field = $value;
+                //print_r($this->data['TABLES'][$table]['FIELDS']);
+                $this->table->database->dirty=true;
+                break;
             case 'length':
             case 'default':
                 $value = $object->get_text();
@@ -217,7 +226,7 @@ class Gtk_MDB_Designer_Interface_Column extends Gtk_MDB_Designer_Column {
                 $this->$field = $value;
                 //print_r($this->data['TABLES'][$table]['FIELDS']);
                 $this->table->database->dirty=true;
-            
+                $this->dirty = true;
                 break;
             case 'notnull':
             case 'isIndex':
@@ -233,7 +242,7 @@ class Gtk_MDB_Designer_Interface_Column extends Gtk_MDB_Designer_Column {
                 $this->table->database->dirty=true;
                 $this->table->database->save();
                 $this->setVisable();
-                
+                $this->dirty = true;
                 break;
             default: 
                 echo "opps forgot :$field\n";
@@ -280,6 +289,7 @@ class Gtk_MDB_Designer_Interface_Column extends Gtk_MDB_Designer_Column {
         $this->type = $value;
         $this->setVisable();
         $this->table->database->dirty=true;
+        $this->dirty = true;
         $this->table->database->save();
         
     }

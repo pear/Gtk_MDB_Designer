@@ -24,6 +24,8 @@
 
 
 class Gtk_MDB_Designer_Column {
+    var $originalName;      // original name (set by table normalize method)
+    var $dirty = false;
     var $name;              // column name
     var $type;              // type = integer|decimal|float|double|text|cblob|blob|boolean|date|timestamp|time
     var $length;            // field size   
@@ -188,6 +190,21 @@ class Gtk_MDB_Designer_Column {
         return $ret;
     }
     
+    
+    function updateDatabase(&$db) {
+        
+        if ($this->originalName == '') {
+            echo "ALTER TABLE ADD COLUMN ....\n";
+            $this->originalName = $this->name;
+            return;
+        }
+        // mmh - technically we dont need to updates if nothing has changed.
+        // maybe a dirty flag is needed here..
+        
+        echo "ALTER TABLE {$this->originalName} ".$this->toSQL($db)."\n";
+    
+    
+    }
     
     
 }
