@@ -98,6 +98,19 @@ class Gtk_MDB_Designer_Column {
             $r .= ' UNIQUE ';
         }
         
+        // Kludge.. as CHARS are silly in alot of databases
+        $r = str_replace(' CHAR ', ' VARCHAR ',$r);    
+        
+        // booleans has a type in mysql!!!
+        switch ($db->phptype) {
+            case 'mysql':
+                $r = str_replace(' VARCHAR (1)', ' BOOL',$r);    
+                break;
+            case 'pgsql':
+                $r = str_replace(' VARCHAR (1)', ' BOOLEAN',$r);    
+                break;
+        }
+        
         
        // print_r($db);
         if ($this->sequence) {
@@ -214,4 +227,4 @@ class Gtk_MDB_Designer_Column {
     
 }
 
-?>
+ 

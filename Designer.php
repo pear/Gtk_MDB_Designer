@@ -245,11 +245,19 @@ class Gtk_MDB_Designer {
         if (!$this->drawingArea->window) {
             return;
         }
-        
-        $this->pixmap = new GdkPixmap($this->drawingArea->window,
-                //$this->database->maxX ,$this->database->maxY,
-                5000,5000
-                -1);
+        $size = 5000;
+        while (!$this->pixmap) {
+            if ($size < 1000) {
+                echo "unable to allocate pixmap - giving up\n";
+                exit;
+            }
+            $this->pixmap = new GdkPixmap($this->drawingArea->window,
+                    //$this->database->maxX ,$this->database->maxY,
+                    $size,$size
+                    -1);
+            $size -= 1000;
+            
+        }
         if (!$this->pixmap) {
             return;
         }
