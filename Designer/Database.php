@@ -106,17 +106,17 @@ class Gtk_MDB_Designer_Database {
     */
     
      
-    function toSQL() {
+    function toSQL($dbtype) {
         // test mdb creation..
         require_once 'MDB.php';
-        $db = MDB::factory('pgsql');
+        $db = MDB::factory($dbtype);
         //echo "loaded factory?";
         //print_r($db);
         $ret = '';
         foreach($this->tables as $table) {
             $ret .= $table->toSQL($db);
         }
-        echo $ret;
+        return $ret;
         
     }
     /**
@@ -127,19 +127,17 @@ class Gtk_MDB_Designer_Database {
     */
     
     
-    function saveSQL() {
+    function saveSQL($dbtype) {
         $this->save(''); // save it first and get a filename? 
          
         if (!$this->file) {
             return;
         }
         
-        $data = $this->toSQL();
+        $data = $this->toSQL($dbtype);
         
-        echo $data;
-        return;
         // ?? check?
-        $fh = fopen($this->file.'.sql','w');
+        $fh = fopen($this->file.'.'.$dbtype,'w');
         fwrite($fh,$data);
         fclose($fh);
         

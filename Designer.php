@@ -114,7 +114,7 @@ class Gtk_MDB_Designer {
             array('menu_open',      'activate','showFileDialog'),
             array('menu_save',      'activate','callbackSave'),
             array('menu_quit',      'activate','callbackShutdown'),
-            array('menu_export',    'activate','callbackSaveSQL'),
+            //array('menu_export',    'activate','callbackSaveSQL'),
             array('menu_zoomOut',   'activate','callbackShrink'),
             array('menu_zoomIn',    'activate','callbackExpand'),
             
@@ -131,6 +131,11 @@ class Gtk_MDB_Designer {
             //echo "DO : {$data[0]}\n";
             $new = $this->glade->get_widget($data[0]);
             $new->connect($data[1],array(&$this,$data[2]));
+        }
+        
+        foreach(array('mysql','pgsql','oci8','fbsql') as $db) {
+            $new = $this->glade->get_widget('export_'.$db);
+            $new->connect('activate',array(&$this,'callbackSaveSQL'),$db);
         }
         // todo a save as button...
         //$new = $this->glade->get_widget('menu_saveas');
@@ -258,8 +263,8 @@ class Gtk_MDB_Designer {
     * 
     * @access   public
     */
-    function callbackSaveSQL() {
-        $this->database->saveSQL();
+    function callbackSaveSQL($object,$db) {
+        $this->database->saveSQL($db);
     }
      /**
     * call back for save as file = called by pressing the ok button on the file dialog.
