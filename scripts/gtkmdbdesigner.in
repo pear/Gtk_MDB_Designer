@@ -1,0 +1,12 @@
+#!@prefix@/bin/php -q
+<?
+if ('@include_path@' != '@'.'include_path'.'@') {
+    ini_set('include_path', '@include_path@');
+}
+ 
+
+require_once 'Gtk/MDB/Designer.php';
+$start = new Gtk_MDB_Designer;
+$start->start();
+
+?>

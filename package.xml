@@ -49,6 +49,21 @@
                 </dir>
             </dir>
         </dir>
+        
+        <dir name="scripts">
+            <file baseinstalldir="/" role="script" install-as="gtkmdbdesigner" name="gtkmdbdesigner.in">
+                <replace from="@prefix@/bin" to="bin_dir" type="pear-config"/>
+                <replace from="@include_path@" to="php_dir" type="pear-config"/>
+            </file>
+            <file baseinstalldir="/" role="script" platform="windows" name="gtkmdbdesigner.bat">
+                <replace from="@prefix@/bin" to="bin_dir" type="pear-config"/>
+                <replace from="@include_path@" to="php_dir" type="pear-config"/>
+            
+            </file>
+        </dir>
+
+        
+        
     </filelist>
    
    

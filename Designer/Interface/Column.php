@@ -211,9 +211,9 @@ class Gtk_MDB_Designer_Interface_Column extends Gtk_MDB_Designer_Column {
             'cblob'    => array(  1,0,0,0,0,0),
             'blob'     => array(  1,0,0,0,0,0),
             'boolean'  => array(  1,1,1,1,0,0),
-            'date'     => array(  0,1,1,1,0,1),
-            'timestamp'=> array(  0,1,1,1,0,1),
-            'time'     => array(  0,1,1,1,0,1)
+            'date'     => array(  0,1,1,1,0,1,''),
+            'timestamp'=> array(  0,1,1,1,0,1,''),
+            'time'     => array(  0,1,1,1,0,1,'')
         );
         
         $vis = $visable[$this->type];
