@@ -449,7 +449,7 @@ class Gtk_MDB_Designer {
         $this->database->saveLinksIni();
     }
     
-       
+    var $lastRefresh = 0;
     /**
     * Windows Kludge for broken gtklayout
     *
@@ -458,10 +458,15 @@ class Gtk_MDB_Designer {
   
     function callbackWindowsKludge() 
     {
-        //echo "windows kludge";
+        if (strtoupper(substr(PHP_OS, 0,3) != 'WIN')) return;
         $this->layout->queue_draw();
+         
+        if ($this->lastRefesh==time()) return;
+    	$this->lastRefesh=time();
         $this->layout->hide();
-        $this->layout->show();
+    	$this->layout->show();
+        
+         
     } 
     
     /* these could probably be removed by connect_object('...',$this->glade->get_widget('dialog_new'),'hide') */
