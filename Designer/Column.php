@@ -87,15 +87,74 @@ class Gtk_MDB_Designer_Column {
             // switch case on $db->dntype..
             switch ($db->phptype) {
                 case 'mysql':
+                case 'fbsql':
                     $r .= " AUTOINCREMENT ";
                     break;
-                default:
+                case 'pgsql':
+                case 'oci8': // no idea if this works..
                     $r .= " DEFAULT nextval({$this->name}_sequence) ";
             }
         }
         return $r;
         
+    }
+    /**
+    * create SQL for sequences if neccesary.
+    * - defaults to use database's native - eg. AUTOINCREMENT on those that support it.
+    * - cant use mdb code as currently mdb runs the query. 
+    *
+    * @param object MDB $db database object to use for creating strings.
+    * @return string the SQL 
+    * @access   public
+    */
+    function toSequenceSQL($db) {
         
+        if (!$this->sequence) {
+            return;
+        }
+        // looks like mdb cant return the sql for sequences - it actually does the work.
+        //$db->loadManager();
+        //$db->manager->
+    
+        switch ($db->phptype) {
+            case 'mysql':
+            case 'fbsql':
+                    return;
+            case 'pgsql':
+                return "CREATE SEQUENCE {$this->table->name}_{$this->name}_sequence INCREMENT 1 START 1";
+            case 'oci8':
+                return "CREATE SEQUENCE {$this->table->name}_{$this->name}_sequence START WITH 1 INCREMENT BY 1";
+        }
+    }
+    /**
+    * create SQL for indexes if neccesary.
+    * - cant use mdb code as currently mdb runs the query.     
+    * 
+    * @param object MDB $db database object to use for creating strings.
+    * @return string the SQL 
+    * @access   public
+    */
+    function toIndexSQL($db) {
+        
+        if (!$this->isIndex) {
+            return;
+        }
+        $unique = '';
+        $index = ' INDEX ';
+        if ($this->unique) {
+            $unique = ' UNIQUE ';
+            $index = ' UNIQUE ';
+        }
+        
+        switch ($db->phptype) {
+            case 'mysql':
+            case 'fbsql':
+                return "ALTER TABLE {$this->table->name} ADD {$index} {$this->name}_index ({$this->name})";
+            case 'pgsql':
+            case 'oci8':
+                return "CREATE {$unique} INDEX {$this->name}_index on {$this->table->name} ({$this->name})";
+                
+        }
     }
     /**
     * get an MDB array from the row.

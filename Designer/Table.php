@@ -99,14 +99,34 @@ class Gtk_MDB_Designer_Table {
     * @access   public
     */
     function toSQL($db) {
-        $ret ="CREATE TABLE {$this->name} (\n";
+        // comments would be nice in the file..
+        if ($this->deleted) {
+            return;
+        }
+        $ret = '';
+        foreach($this->fields as $field) {
+            if ($r = $field->toSequenceSQL($db)) {
+                $ret .= $r . ";\n";
+            }
+        }
+    
+        $ret .= "\nCREATE TABLE {$this->name} (\n";
         foreach($this->fields as $field) {
             if ($row =$field->toSQL($db)) {
                 $ret .= "    ". $row. ",\n";
             }
         }
         $ret .= ");\n";
-       return $ret;
+        // now indexes..
+        foreach($this->fields as $field) {
+            if ($r = $field->toIndexSQL($db)) {
+                $ret .= $r . ";\n";
+            }
+        }
+        
+        $ret .= "\n\n";
+        
+        return $ret;
     }
     
     
