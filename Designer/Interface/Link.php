@@ -213,9 +213,9 @@ class Gtk_MDB_Designer_Interface_Link {
         
         $export = array(
             'fromtable' => $this->from->table->name,
-            'fromrow'   => $this->from->name,
+            'fromfield'   => $this->from->name,
             'totable'   => $this->to->table->name,
-            'torow'     => $this->to->name,
+            'tofield'     => $this->to->name,
         );
         $ret  = "      <link>\n";
         foreach($export as $k=>$v) {
@@ -224,6 +224,10 @@ class Gtk_MDB_Designer_Interface_Link {
         $ret .= "      </link>\n";
         return $ret;
     }
+    
+    
+    
+    
     
     
 }

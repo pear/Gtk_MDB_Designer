@@ -32,7 +32,7 @@ class Gtk_MDB_Designer_Database {
     var $dirty = false; // has the diagram changed and hence needs quick saving
     var $file;          // the filename 
     
-    
+    var $link = array();    // incomming list of links.
     /**
     * Noramlize the parser array into a tree
     *
@@ -48,6 +48,9 @@ class Gtk_MDB_Designer_Database {
             $this->tables[$table->name]->normalize();
         }
         unset($this->table);
+        //print_r($this);
+        
+        
     }
     
     /**

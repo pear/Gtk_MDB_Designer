@@ -70,13 +70,30 @@ class Gtk_MDB_Designer_Interface_Database extends Gtk_MDB_Designer_Database {
         
         foreach (array_keys($this->tables) as $name) {
            $this->tables[$name]->buildWidgets($this,$this->maxX,20);
-           
         }
-            
+        
+        
+        
         $menu->set_sensitive(true);
         // create each row.
         $this->designer->loadDrawingArea();
         $this->loading = false;
+        
+        while (gtk::events_pending()) gtk::main_iteration();
+        foreach ($this->link as $i=>$link) {
+            if (!isset($link->fromfield)) {
+                continue;
+            }
+            //print_r($link);
+            $this->links[$i] = $link;
+            $this->links[$i]->id = $i; 
+            $this->links[$i]->from = &$this->tables[$link->fromtable]->fields[$link->fromfield];
+            $this->links[$i]->to   = &$this->tables[$link->totable]->fields[$link->tofield];
+            $this->links[$i]->addLink();
+        }
+      
+         $this->link= array();
+        
     }
     
     
@@ -121,7 +138,7 @@ class Gtk_MDB_Designer_Interface_Database extends Gtk_MDB_Designer_Database {
                 true, 0, 0,
                 $maxX ,$maxY);
                 
-             $this->redrawLinks();     
+            $this->redrawLinks();     
             // at this point you have to hook in the call to redraw the connectors.
             
             

@@ -421,7 +421,7 @@ class Gtk_MDB_Designer_Interface_Column extends Gtk_MDB_Designer_Column {
         $ret = array();
         
        // $scale = $this->table->database->scale * 10;
-        
+        //require_once 'Gtk/VarDump.php'; new Gtk_VarDump($this);
         $ww2 = $this->widgets['name']->window;
         
         // sort out the y value.
