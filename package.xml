@@ -3,8 +3,25 @@
 <package version="1.0">
   <name>Gtk_MDB_Designer</name>
   <summary>An Gtk Database designer</summary>
-  <description>A very simple tool to design databases
+  <description>
+    A graphical database schema designer, based loosely around the MDB schema,
+    it features
+      - table boxes which are draged around a window to layout your database
+      - add/delete tables
+      - add delete columns
+      - support for NotNull, Indexes, Sequences and Unique Indexes, defaults
+      - works totally in non-connected mode (eg. no database or setting up required)
+      
+      - stores in MDB like xml file.
+      - saves to any supported database SQL create tables files.
+      - screenshots at http://devel.akbkhome.com/Gtk_MDB/
+    Future enhancements: 
+      - real MDB schema exports 
+      - relationships = with lines etc.
   
+    Note: the primary aim is to generate SQL files, (so that I can get my work done)
+    however it is eventually planned to support MDB schema's fully.. - just a matter of time..
+    
   
 </description>
   <license>PHP License</license>
@@ -21,13 +38,14 @@
   
     <release>
       <version>0.1</version>
-      <date>2003-03-20</date>
+      <date>2003-03-23</date>
       <notes>
-        First test version
+        - First release version
+        - Available for testing.
           
         
       </notes>
-      <state>stable</state>
+      <state>beta</state>
     </release>
      
      
