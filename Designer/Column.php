@@ -125,15 +125,15 @@ class Gtk_MDB_Designer_Column {
         // looks like mdb cant return the sql for sequences - it actually does the work.
         //$db->loadManager();
         //$db->manager->
-    
+        // WILL NOT HANDLE MULTIPLE SEQUENCES WELL...
         switch ($db->phptype) {
             case 'mysql':
             case 'fbsql':
                     return;
             case 'pgsql':
-                return "CREATE SEQUENCE {$this->table->name}__{$this->name}_sequence INCREMENT 1 START 1";
+                return "CREATE SEQUENCE {$this->table->name}_seq INCREMENT 1 START 1";
             case 'oci8':
-                return "CREATE SEQUENCE {$this->table->name}__{$this->name}_sequence START WITH 1 INCREMENT BY 1";
+                return "CREATE SEQUENCE {$this->table->name}_seq START WITH 1 INCREMENT BY 1";
         }
     }
     /**
