@@ -105,7 +105,7 @@ class Gtk_MDB_Designer_Column {
             switch ($db->phptype) {
                 case 'mysql':
                 case 'fbsql':
-                    $r .= " AUTO INCREMENT ";
+                    $r .= " AUTO_INCREMENT ";
                     break;
                 case 'pgsql':
                 case 'oci8': // no idea if this works..
