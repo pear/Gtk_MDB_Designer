@@ -160,17 +160,19 @@ class Gtk_MDB_Designer_Interface_Database extends Gtk_MDB_Designer_Database {
             //$this->pixmap->destroy();
             
         //}
-        $this->pixmap = new GdkPixmap(
-                $this->drawingArea->window,
-                $this->maxX ,$this->maxY,
-                -1);
-                
-         gdk::draw_rectangle($this->pixmap, 
-            $this->drawingArea->style->white_gc,
-            true, 0, 0,
-            $this->maxX ,$this->maxY);
+        if ($this->pixmap) {
+            $this->pixmap = new GdkPixmap(
+                    $this->drawingArea->window,
+                    $this->maxX ,$this->maxY,
+                    -1);
+                    
+             gdk::draw_rectangle($this->pixmap, 
+                $this->drawingArea->style->white_gc,
+                true, 0, 0,
+                $this->maxX ,$this->maxY);
             
-        $this->drawingArea->size($this->maxX,$this->maxY);
+            $this->drawingArea->size($this->maxX,$this->maxY);
+        }
         //$this->drawingArea->hide();
         //$this->drawingArea->show();
         
