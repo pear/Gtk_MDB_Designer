@@ -119,7 +119,7 @@ class Gtk_MDB_Designer_Table {
         $ret .= ")";
         if (strlen($this->inherits)) {
             $ret.= "\nINHERITS ({$this->inherits})";
-        
+        }
         $ret .= ";\n";
         // now indexes..
         foreach($this->fields as $field) {
