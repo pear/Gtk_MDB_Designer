@@ -20,7 +20,7 @@
 //
 //  The column dataobject - interface
 //
-$GLOBALS['_Gtk_MDB_Designer_Interface_Column']['target'] = array(array('text/plain', 0, -1));
+$GLOBALS['_Gtk_MDB_Designer_Interface_Column'] = array();
 
 
 
@@ -70,8 +70,8 @@ class Gtk_MDB_Designer_Interface_Column extends Gtk_MDB_Designer_Column {
                     $this->widgets[$string]->connect('changed',array(&$this,'callbackSetValue'),$string);
                     $this->widgets[$string]->connect('leave-notify-event', array(&$this->table->database,'save'));
                     if ($string == 'name') {
-                         $this->widgets[$string]->connect_after('drag_begin',array(&$this,'callbackNamePressed'));
-                         //$this->widgets[$string]->connect_after('button-release-event',array(&$this,'callbackNameReleased'));
+                        $this->widgets[$string]->connect_after('drag_begin',array(&$this,'callbackNamePressed'));
+                        $this->widgets[$string]->connect_after('drag-end',array(&$this,'callbackNameReleased'));
                         $this->widgets[$string]->show();
                         //$this->widgets[$string]->show();
                        // $this->widgets[$string]->realize();
@@ -128,21 +128,24 @@ class Gtk_MDB_Designer_Interface_Column extends Gtk_MDB_Designer_Column {
     function callbackDropAsk($widget, $context, $selection_data, $info, $time)
     {
         //print_r(func_get_args());
-            //  $dnd_string = "Perl is the only language that looks\nthe same before and after RSA encryption";
-			
-            if (method_exists($selection_data,'set')) {
-                $selection_data->set($selection_data->target, 8, '');
-            }
-             echo "START TO {$this->table->name}:{$this->name}\n";
-             $this->callbackNameReleased();
+        //  $dnd_string = "Perl is the only language that looks\nthe same before and after RSA encryption";
+        
+        if (method_exists($selection_data,'set')) {
+            $selection_data->set($selection_data->target, 8, '');
+        }
+        $this->table->database->newLink[0] = &$this;
+        //echo "START TO {$this->table->name}:{$this->name}\n";
+        $this->callbackNameReleased();
         //print_r(func_get_args());
         //$selection_data->set($selection_data->target, 8, "fred");
 	}
     
     
     function callbackDropReceived($widget, $context, $selection_data, $info, $time)
-     {
-        echo "END TO {$this->table->name}:{$this->name}\n";
+    {
+        //echo "END TO {$this->table->name}:{$this->name}\n";
+        $this->table->database->newLink[1] = &$this;
+        $this->table->database->createLink();
         //if ($data && $data->format == 8)
         //			print "Drop data of type " . $data->target->string";
 	
@@ -329,31 +332,42 @@ class Gtk_MDB_Designer_Interface_Column extends Gtk_MDB_Designer_Column {
     function callbackNamePressed() {
         $w = $this->table->database->layout->window;
         $w->set_cursor($this->table->database->designer->pointers[GDK_HAND2]);
-        $this->startPos         = $w->pointer;
+        //$this->startPos         = $w->pointer;
         
        
         // modify this to start on left or right.?
         
-        $this->setStartPos();
+        $this->startPos = $this->getStartPos();
         
         
         
         
         $this->nameDrag = true;
-        
-        $cmap = $this->table->database->layout->get_colormap();
-
-        $this->_cursorGC = $w->new_gc();
-        $this->_cursorGC->background =  $cmap->alloc("#000000");
-        $this->_cursorGC->function   =  GDK_INVERT;
-        $this->_cursorGC->line_width  =  3;
-        $this->_cursorGC->line_style = GDK_LINE_ON_OFF_DASH;
-        $this->_cursorGC->cap_style = GDK_CAP_ROUND;
+        $this->setGC();
         
         $this->lastEnd = false;
-        gtk::timeout_add(5,array(&$this,'callbackDragMove'));
+        gtk::timeout_add(50,array(&$this,'callbackDragMove'));
        
     }   
+    
+    
+    function setGC() {
+        if (isset($GLOBALS['_Gtk_MDB_Designer_Interface_Column']['gc'])) {
+            return;
+        }
+        $w = $this->table->database->layout->window;
+        $cmap = $this->table->database->layout->get_colormap();
+        $GLOBALS['_Gtk_MDB_Designer_Interface_Column']['gc'] = $w->new_gc();
+        
+        $gc = &$GLOBALS['_Gtk_MDB_Designer_Interface_Column']['gc'];
+        $gc->background =  $cmap->alloc("#000000");
+        $gc->function   =  GDK_INVERT;
+        $gc->line_width  =  3;
+        $gc->line_style = GDK_LINE_ON_OFF_DASH;
+        $gc->cap_style = GDK_CAP_ROUND;
+    }
+    
+    
     /**
     * set the startPosition either left or right.. - depending on target.
     *
@@ -361,29 +375,29 @@ class Gtk_MDB_Designer_Interface_Column extends Gtk_MDB_Designer_Column {
     * @access   public
     */
     
-    function setStartPos($endPos=false) {
-    
+    function getStartPos($endPos=false) {
+        $ret = array();
         $ww2 = $this->widgets['name']->window;
         
         $yAdj = $this->table->database->layout->get_vadjustment();
-        $this->startPos[1] = $ww2->y + $this->table->y + 10 - $yAdj->value;
+        $ret[1] = $ww2->y + $this->table->y + 10 - $yAdj->value;
         //print_r(array(,$this->startPos[1]));
         $xAdj = $this->table->database->layout->get_hadjustment();
         $ww = $this->table->frame->window;
         //print_r(array($this->table->x,$this->table->y));
         //print_r(array($ww->width,$ww->height));
         if (!$endPos) {
-            $this->startPos[0] = ($this->table->x * $this->table->scale)- 3 - $xAdj->value;
+            $ret[0] = ($this->table->x * $this->table->scale)- 3 - $xAdj->value;
             //$this->startPos[1] = $this->table->x - 3;
-            return;
+            return $ret;
         }
         if (($endPos[0] + $xAdj->value) > (($this->table->x  * $this->table->scale)+ ($ww->width/2))) {
             // right hand side..
-            $this->startPos[0] = ($this->table->x  * $this->table->scale) +$ww->width + 3 - $xAdj->value;
+            $ret[0] = ($this->table->x  * $this->table->scale) +$ww->width + 3 - $xAdj->value;
         } else {
-            $this->startPos[0] = ($this->table->x  * $this->table->scale) - 3 - $xAdj->value;
+            $ret[0] = ($this->table->x  * $this->table->scale) - 3 - $xAdj->value;
         }
-        
+        return $ret;
         
     }
     
@@ -393,40 +407,62 @@ class Gtk_MDB_Designer_Interface_Column extends Gtk_MDB_Designer_Column {
     * @access   public
     */
     function callbackDragMove() {
-        $da =  &$this->table->database->designer->drawingArea;
-        $pix = &$this->table->database->designer->pixmap;
-        $layout = &$this->table->database->layout;
-        $xAdj = $layout->get_hadjustment();
-        $yAdj = $layout->get_vadjustment();
-        
-        
-        $w = $layout->window;
-        
+            
+        if (!$this->nameDrag) {
+            return $this->nameDrag;
+        }
+        $w = $this->table->database->layout->window;
+        // remove last line
         if ($this->lastEnd) {
-            gdk::draw_line($pix,$this->_cursorGC,
-                $this->startPos[0] + $xAdj->value,$this->startPos[1] + $yAdj->value,
-                $this->lastEnd[0] + $xAdj->value ,$this->lastEnd[1]+ $yAdj->value );
-            $da->draw($this->makeRectangle(
-                $this->startPos[0] + $xAdj->value,$this->startPos[1] + $yAdj->value,
-                $this->lastEnd[0] + $xAdj->value ,$this->lastEnd[1]+ $yAdj->value ));
+            $this->drawDragLine($GLOBALS['_Gtk_MDB_Designer_Interface_Column']['gc'],
+                $this->startPos[0], $this->startPos[1],
+                $this->lastEnd[0] ,$this->lastEnd[1]  );
+             
         }
         
         $this->lastEnd = $w->pointer;
-        $this->setStartPos($w->pointer);
+        $this->startPos = $this->getStartPos($w->pointer);
+        // draw new line
+        $this->drawDragLine($GLOBALS['_Gtk_MDB_Designer_Interface_Column']['gc'],
+                $this->startPos[0], $this->startPos[1],
+                $this->lastEnd[0] ,$this->lastEnd[1]  );
+       
         
-        gdk::draw_line($pix,$this->_cursorGC,
-            $this->startPos[0] + $xAdj->value,$this->startPos[1] + $yAdj->value,
-            $this->lastEnd[0] + $xAdj->value ,$this->lastEnd[1]+ $yAdj->value );
-        
-        $da->draw($this->makeRectangle(
-                $this->startPos[0] + $xAdj->value ,$this->startPos[1] + $yAdj->value ,
-                $this->lastEnd[0]+ $xAdj->value,$this->lastEnd[1] + $yAdj->value)
-        );
-        
-        return $this->nameDrag;
+        return true;
        
     }
+    
+    function drawDragLine(&$gc, $x1,$y1,$x2,$y2) {
+        //echo "DRAW LINE\n";
+        $layout = &$this->table->database->layout;
+        $xAdj = $layout->get_hadjustment();
+        $yAdj = $layout->get_vadjustment();
+        $da =  &$this->table->database->designer->drawingArea;
+        
+        $pix = &$this->table->database->designer->pixmap;
+        gdk::draw_line($pix,$GLOBALS['_Gtk_MDB_Designer_Interface_Column']['gc'],
+            $x1 + $xAdj->value, $y1 + $yAdj->value,
+            $x2 + $xAdj->value, $y2 + $yAdj->value );
+        
+        $da->draw($this->makeRectangle(
+               $x1 + $xAdj->value, $y1 + $yAdj->value,
+            $x2 + $xAdj->value,  $y2 + $yAdj->value )
+        );
+    
+    
+    
+    }
+    
+    
     function callbackNameReleased() {
+        //echo "RELEASE?";
+        if ($this->lastEnd) {
+            $this->drawDragLine($GLOBALS['_Gtk_MDB_Designer_Interface_Column']['gc'],
+                    $this->startPos[0], $this->startPos[1],
+                    $this->lastEnd[0] ,$this->lastEnd[1]  );
+            $this->lastEnd = false;
+            //echo "DONE RELEASE?";
+        }
         //echo "CONNECTED FROM {$this->table->name}:{$this->name}\n";
         $w = $this->table->database->layout->window;
         $w->set_cursor($this->table->database->designer->pointers[GDK_ARROW]);

@@ -23,6 +23,7 @@
 
 require_once 'Gtk/MDB/Designer/Database.php';
 require_once 'Gtk/MDB/Designer/Interface/Table.php';
+require_once 'Gtk/MDB/Designer/Interface/Link.php';
 
 class Gtk_MDB_Designer_Interface_Database extends Gtk_MDB_Designer_Database {
 
@@ -230,5 +231,31 @@ class Gtk_MDB_Designer_Interface_Database extends Gtk_MDB_Designer_Database {
         }
         $widget->set_style($newstyle);
     }
+    
+    var $newLink = array(); // set by drag drop stuff.0 - from 1 - to.
+    
+    var $links = array();   // array of link objects. Gtk_MDB_Designer_Interface_Links
+     /**
+    * create a new link - done by drag/drop.. action.
+    *
+    * @access   public
+    */
+    
+    function createLink() {
+        //require_once 'Gtk/VarDump.php';new Gtk_VarDump($this->newLink);
+        // does a link like this already exist?
+        foreach(array_keys($this->links) as $i) {
+            if ($this->links[$i]->matches($this->newLink)) {
+                // error they match...
+                return;
+            }
+        }
+        $this->links[] = new  Gtk_MDB_Designer_Interface_Link;
+        $this->links[count($this->links)-1]->from = &$this->newLink[0];
+        $this->links[count($this->links)-1]->to = &$this->newLink[1];
+        $this->links[count($this->links)-1]->drawLink();
+    }
+        
+      
 }
 ?>

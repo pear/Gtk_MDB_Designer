@@ -64,7 +64,8 @@
                 <dir name="Interface" role="php">
                   <file>Table.php</file>
                   <file>Column.php</file>
-                  <file>Database.php</file>                  
+                  <file>Database.php</file>    
+                  <file>Link.php</file>
                 </dir>
             </dir>
         </dir>
