@@ -1,0 +1,25 @@
+{
+    "authors": [
+        {
+            "email": "alan@akbkhome.com",
+            "name": "Alan Knowles",
+            "role": "Lead"
+        }
+    ],
+    "autoload": {
+        "classmap": [
+            "./"
+        ]
+    },
+    "description": "More info available on: http://pear.php.net/package/Gtk_MDB_Designer",
+    "license": "PHP License",
+    "name": "pear/gtk_mdb_designer",
+    "support": {
+        "issues": "http:///bugs/search.php?cmd=display&package_name[]=Gtk_MDB_Designer",
+        "source": "https://github.com/pear/Gtk_MDB_Designer"
+    },
+    "type": "library",
+    "require-dev": {
+        "phpunit/phpunit": "*"
+    }
+}
